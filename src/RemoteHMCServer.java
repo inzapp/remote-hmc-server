@@ -17,16 +17,19 @@ class PacketFileName {
     public static final String PACKET_DIR = "packet";
     public static final String SEARCH = PACKET_DIR + "\\search.txt";
     public static final String MATRIX = PACKET_DIR + "\\matrix.txt";
+    public static final String MULTI_VIEWER_111 = PACKET_DIR + "\\multi_viewer_111.txt";
 
 }
 
 class Packet {
     public static byte[] SEARCH;
     public static byte[] MATRIX;
+    public static byte[] MULTI_VIEWER_111;
 }
 
 class Command {
     public static final int MATRIX = 1;
+    public static final int MULTI_VIEWER_111 = 2;
 }
 
 class PacketLoader {
@@ -34,6 +37,7 @@ class PacketLoader {
         System.out.println("start loading packet from file...");
         Packet.SEARCH = load(PacketFileName.SEARCH);
         Packet.MATRIX = load(PacketFileName.MATRIX);
+        Packet.MULTI_VIEWER_111 = load(PacketFileName.MULTI_VIEWER_111);
         System.out.println("loading packet from file success\n");
     }
 
@@ -76,7 +80,7 @@ class Server {
             try {
                 byte[] buffer = new byte[pRes.BUFSIZE];
                 InputStream is = socket.getInputStream();
-                while(true) {
+                while (true) {
                     int res = is.read(buffer);
                     System.out.println(res + " byte packet is received and ignored");
                 }
@@ -84,7 +88,7 @@ class Server {
                 System.out.println("connection down");
                 try {
                     socket.getOutputStream().close();
-                } catch (IOException ex) {
+                } catch (IOException ignored) {
                     // ignore
                 }
             }
@@ -124,7 +128,7 @@ class Server {
     }
 
     public void command(int command) {
-        switch(command) {
+        switch (command) {
             case Command.MATRIX:
                 try {
                     socket.getOutputStream().write(Packet.MATRIX);
@@ -133,8 +137,20 @@ class Server {
                 }
                 break;
 
+            case Command.MULTI_VIEWER_111:
+                try {
+                    socket.getOutputStream().write(Packet.MULTI_VIEWER_111);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
             default:
                 break;
+        }
+
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException ignored) {
         }
     }
 }
@@ -147,6 +163,6 @@ public class RemoteHMCServer {
         Server server = new Server();
         server.connect();
 
-        server.command(Command.MATRIX);
+        server.command(Command.MULTI_VIEWER_111);
     }
 }
