@@ -1,3 +1,8 @@
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
+import sun.net.httpserver.HttpServerImpl;
+
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
@@ -6,7 +11,7 @@ import java.util.List;
 class pRes {
     static final int PORT_TCP = 8000;
     static final int PORT_UDP = 30600;
-    static final int PORT_REMOTE_TCP = 10232;
+    static final int PORT_REMOTE_HTTP = 10232;
     static final int TCP_CONN_TIMEOUT = 5000;
     static final int BUFSIZE = 128;
     static final String REMOTE_SESSION_KEY = "[REMOTE_HMC_SERVER_KEY_10200392812738945698304958]";
@@ -325,83 +330,7 @@ class HMCServer {
     }
 }
 
-class RemoteSession extends Thread {
-    private Socket session;
-    private DataOutputStream dos;
-    private DataInputStream dis;
-    private HMCServer hmcServer;
-    RemoteSession(Socket session, HMCServer hmcServer) {
-        this.session = session;
-        this.hmcServer = hmcServer;
-    }
-
-    @Override
-    public void run() {
-        if(!getStream() || !keyCheck()){
-            disconnect();
-            return;
-        }
-
-        int command;
-        while(true) {
-            try {
-                command = Integer.parseInt(dis.readUTF());
-                runCommand(command);
-            } catch (IOException e) {
-                System.out.println("disconnected with client");
-                break;
-            }
-        }
-
-        disconnect();
-    }
-
-    private boolean getStream() {
-        try {
-            this.dos = new DataOutputStream(session.getOutputStream());
-            this.dis = new DataInputStream(session.getInputStream());
-            return true;
-        } catch (IOException e) {
-            return false;
-        }
-    }
-
-    private boolean keyCheck() {
-        try {
-            String receivedKey = dis.readUTF();
-            return receivedKey.equals(pRes.REMOTE_SESSION_KEY);
-        } catch (IOException e) {
-            return false;
-        }
-    }
-
-    private void runCommand(int command) {
-        this.hmcServer.command(command);
-    }
-
-    private void disconnect() {
-        try {
-            this.session.getOutputStream().close();
-        } catch (IOException ignored) {
-            // ignored
-        }
-    }
-}
-
 public class RemoteHMCServer {
-    private ServerSocket serverSocket;
-
-    RemoteHMCServer() {
-        try {
-            serverSocket = new ServerSocket(pRes.PORT_REMOTE_TCP);
-        } catch (IOException e) {
-            System.out.println("server initialization failure : port already used");
-            System.exit(-1);
-        }
-        System.out.println("server initialization success");
-        System.out.println("wait for client ...");
-    }
-
     public static void main(String[] args) {
         PacketLoader packetLoader = new PacketLoader();
         packetLoader.loadAllPacket();
@@ -410,15 +339,37 @@ public class RemoteHMCServer {
         hmcServer.connect();
 
         RemoteHMCServer remoteHMCServer = new RemoteHMCServer();
-        remoteHMCServer.waitClient(hmcServer);
+        remoteHMCServer.start(hmcServer);
     }
 
-    private void waitClient(HMCServer hmcServer) {
+    void start(HMCServer hmcServer) {
         try {
-            Socket session = serverSocket.accept();
-            new Thread(new RemoteSession(session, hmcServer)).start();
-        } catch (IOException e) {
+            HttpServer httpServer = HttpServer.create(new InetSocketAddress(pRes.PORT_REMOTE_HTTP), 0);
+            httpServer.createContext("/matrix", exchange -> {
+                hmcServer.command(Command.MATRIX);
+                response(exchange, "true");
+            });
+
+            httpServer.createContext("/multi111", exchange -> {
+
+            });
+            httpServer.start();
+            System.out.println("web server initialization success\n");
+        } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void response(HttpExchange exchange, String msg) {
+        try {
+            String response = msg;
+            exchange.sendResponseHeaders(200, response.length());
+            OutputStream os = exchange.getResponseBody();
+            os.write(response.getBytes());
+            os.close();
+        }
+        catch(Exception ignored) {
+            // empty
         }
     }
 }
