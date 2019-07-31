@@ -2,11 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e3bc10d9-61fb-457b-b0d1-dfe540f1e06d" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/packet/matrix.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/RemoteHMCServer/Packet.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/RemoteHMCServer/Packet.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/RemoteHMCServer/PacketFileName.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/RemoteHMCServer/PacketFileName.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/RemoteHMCServer/PacketLoader.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/RemoteHMCServer/PacketLoader.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/RemoteHMCServer/RemoteHMCServer.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/RemoteHMCServer/RemoteHMCServer.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/RemoteHMCServer/Server.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/RemoteHMCServer/Server.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/RemoteHMCServer/pRes.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/RemoteHMCServer/pRes.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/RemoteHMCServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/RemoteHMCServer.java" afterDir="false" />
     </list>
@@ -27,8 +29,11 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="1OkphCQbJgHR5fYjYcSaNowGfSK" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
   </component>
   <component name="RunDashboard">
@@ -80,5 +85,8 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
   </component>
 </project>

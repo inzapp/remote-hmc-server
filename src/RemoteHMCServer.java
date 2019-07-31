@@ -1,37 +1,46 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
 
 class pRes {
     public static final int PORT_TCP = 8000;
     public static final int PORT_UDP = 30600;
+    public static final int TCP_CONN_TIMEOUT = 5000;
     public static final int BUFSIZE = 128;
 }
 
 class PacketFileName {
     public static final String PACKET_DIR = "packet";
     public static final String SEARCH = PACKET_DIR + "\\search.txt";
+    public static final String MATRIX = PACKET_DIR + "\\matrix.txt";
+
 }
 
 class Packet {
     public static byte[] SEARCH;
+    public static byte[] MATRIX;
+}
+
+class Command {
+    public static final int MATRIX = 1;
 }
 
 class PacketLoader {
     public void loadAllPacket() {
         System.out.println("start loading packet from file...");
         Packet.SEARCH = load(PacketFileName.SEARCH);
+        Packet.MATRIX = load(PacketFileName.MATRIX);
         System.out.println("loading packet from file success\n");
     }
 
     private byte[] load(String fileName) {
         List<Byte> byteList = new ArrayList<>();
         try {
-            BufferedReader br = new BufferedReader(new FileReader(PacketFileName.SEARCH));
+            BufferedReader br = new BufferedReader(new FileReader(fileName));
             while (true) {
                 String line = br.readLine();
                 if (line == null)
@@ -53,12 +62,49 @@ class PacketLoader {
 
 //        for (byte cur : byteArr)
 //            System.out.println(cur & 0xFF);
+
         return byteArr;
     }
 }
 
 class Server {
-    public String getSwitcherIpAddress() {
+    private Socket socket;
+    private Thread receiveThread;
+
+    public Server() {
+        receiveThread = new Thread(() -> {
+            try {
+                byte[] buffer = new byte[pRes.BUFSIZE];
+                InputStream is = socket.getInputStream();
+                while(true) {
+                    int res = is.read(buffer);
+                    System.out.println(res + " byte packet is received and ignored");
+                }
+            } catch (IOException e) {
+                System.out.println("connection down");
+                try {
+                    socket.getOutputStream().close();
+                } catch (IOException ex) {
+                    // ignore
+                }
+            }
+        });
+    }
+
+    public void connect() {
+        try {
+            socket = new Socket();
+            String switcherIp = getSwitcherIpAddress();
+            System.out.println("switcher ip address : " + switcherIp);
+            socket.connect(new InetSocketAddress(switcherIp, pRes.PORT_TCP), pRes.TCP_CONN_TIMEOUT);
+            System.out.println("connection success");
+            receiveThread.start();
+        } catch (Exception e) {
+            System.out.println("connection failure");
+        }
+    }
+
+    private String getSwitcherIpAddress() {
         try {
             DatagramSocket dSocket = new DatagramSocket();
             DatagramPacket sendPacket = new DatagramPacket(Packet.SEARCH, Packet.SEARCH.length, InetAddress.getByName("255.255.255.255"), pRes.PORT_UDP);
@@ -74,7 +120,22 @@ class Server {
             e.printStackTrace();
         }
 
-        return null;
+        return "found failure";
+    }
+
+    public void command(int command) {
+        switch(command) {
+            case Command.MATRIX:
+                try {
+                    socket.getOutputStream().write(Packet.MATRIX);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+
+            default:
+                break;
+        }
     }
 }
 
@@ -84,6 +145,8 @@ public class RemoteHMCServer {
         packetLoader.loadAllPacket();
 
         Server server = new Server();
-        System.out.println(server.getSwitcherIpAddress());
+        server.connect();
+
+        server.command(Command.MATRIX);
     }
 }
