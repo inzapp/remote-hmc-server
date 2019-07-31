@@ -1,7 +1,5 @@
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-import sun.net.httpserver.HttpServerImpl;
 
 import java.io.*;
 import java.net.*;
@@ -146,7 +144,32 @@ class HMCServer {
     private Socket socket;
     private Thread receiveThread;
 
-    HMCServer() {
+    boolean connect() {
+        try {
+            refresh();
+            socket = new Socket();
+            String switcherIp = getSwitcherIpAddress();
+            System.out.println("switcher ip address : " + switcherIp);
+            socket.connect(new InetSocketAddress(switcherIp, pRes.PORT_TCP), pRes.TCP_CONN_TIMEOUT);
+            System.out.println("connection success\n");
+            receiveThread.start();
+            return true;
+        } catch (Exception e) {
+            System.out.println("connection failure\n");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private void refresh() {
+        disconnect();
+
+        try {
+            receiveThread.interrupt();
+        } catch(Exception e) {
+            // empty
+        }
+
         receiveThread = new Thread(() -> {
             try {
                 byte[] buffer = new byte[pRes.BUFSIZE];
@@ -155,7 +178,7 @@ class HMCServer {
                     int res = is.read(buffer);
                     System.out.println(res + " byte packet is received and ignored");
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 System.out.println("connection down");
                 try {
                     socket.getOutputStream().close();
@@ -166,16 +189,11 @@ class HMCServer {
         });
     }
 
-    void connect() {
+    void disconnect() {
         try {
-            socket = new Socket();
-            String switcherIp = getSwitcherIpAddress();
-            System.out.println("switcher ip address : " + switcherIp);
-            socket.connect(new InetSocketAddress(switcherIp, pRes.PORT_TCP), pRes.TCP_CONN_TIMEOUT);
-            System.out.println("connection success\n");
-            receiveThread.start();
+            socket.getOutputStream().close();
         } catch (Exception e) {
-            System.out.println("connection failure\n");
+            // empty
         }
     }
 
@@ -346,7 +364,13 @@ public class RemoteHMCServer {
         try {
             HttpServer httpServer = HttpServer.create(new InetSocketAddress(pRes.PORT_REMOTE_HTTP), 0);
             httpServer.createContext("/matrix", exchange -> {
+                if (!hmcServer.connect()) {
+                    response(exchange, "connection failure");
+                    return;
+                }
+
                 hmcServer.command(Command.MATRIX);
+                hmcServer.disconnect();;
                 response(exchange, "true");
             });
 
@@ -367,8 +391,7 @@ public class RemoteHMCServer {
             OutputStream os = exchange.getResponseBody();
             os.write(response.getBytes());
             os.close();
-        }
-        catch(Exception ignored) {
+        } catch (Exception ignored) {
             // empty
         }
     }
