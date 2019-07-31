@@ -1,7 +1,4 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,8 +6,10 @@ import java.util.List;
 class pRes {
     static final int PORT_TCP = 8000;
     static final int PORT_UDP = 30600;
+    static final int PORT_REMOTE_TCP = 10232;
     static final int TCP_CONN_TIMEOUT = 5000;
     static final int BUFSIZE = 128;
+    static final String REMOTE_SESSION_KEY = "[REMOTE_HMC_SERVER_KEY_10200392812738945698304958]";
 }
 
 class PacketFileName {
@@ -138,11 +137,11 @@ class PacketLoader {
     }
 }
 
-class Server {
+class HMCServer {
     private Socket socket;
     private Thread receiveThread;
 
-    Server() {
+    HMCServer() {
         receiveThread = new Thread(() -> {
             try {
                 byte[] buffer = new byte[pRes.BUFSIZE];
@@ -168,10 +167,10 @@ class Server {
             String switcherIp = getSwitcherIpAddress();
             System.out.println("switcher ip address : " + switcherIp);
             socket.connect(new InetSocketAddress(switcherIp, pRes.PORT_TCP), pRes.TCP_CONN_TIMEOUT);
-            System.out.println("connection success");
+            System.out.println("connection success\n");
             receiveThread.start();
         } catch (Exception e) {
-            System.out.println("connection failure");
+            System.out.println("connection failure\n");
         }
     }
 
@@ -326,34 +325,100 @@ class Server {
     }
 }
 
+class RemoteSession extends Thread {
+    private Socket session;
+    private DataOutputStream dos;
+    private DataInputStream dis;
+    private HMCServer hmcServer;
+    RemoteSession(Socket session, HMCServer hmcServer) {
+        this.session = session;
+        this.hmcServer = hmcServer;
+    }
+
+    @Override
+    public void run() {
+        if(!getStream() || !keyCheck()){
+            disconnect();
+            return;
+        }
+
+        int command;
+        while(true) {
+            try {
+                command = Integer.parseInt(dis.readUTF());
+                runCommand(command);
+            } catch (IOException e) {
+                System.out.println("disconnected with client");
+                break;
+            }
+        }
+
+        disconnect();
+    }
+
+    private boolean getStream() {
+        try {
+            this.dos = new DataOutputStream(session.getOutputStream());
+            this.dis = new DataInputStream(session.getInputStream());
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    private boolean keyCheck() {
+        try {
+            String receivedKey = dis.readUTF();
+            return receivedKey.equals(pRes.REMOTE_SESSION_KEY);
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    private void runCommand(int command) {
+        this.hmcServer.command(command);
+    }
+
+    private void disconnect() {
+        try {
+            this.session.getOutputStream().close();
+        } catch (IOException ignored) {
+            // ignored
+        }
+    }
+}
+
 public class RemoteHMCServer {
-    public static void main(String[] args) throws InterruptedException {
+    private ServerSocket serverSocket;
+
+    RemoteHMCServer() {
+        try {
+            serverSocket = new ServerSocket(pRes.PORT_REMOTE_TCP);
+        } catch (IOException e) {
+            System.out.println("server initialization failure : port already used");
+            System.exit(-1);
+        }
+        System.out.println("server initialization success");
+        System.out.println("wait for client ...");
+    }
+
+    public static void main(String[] args) {
         PacketLoader packetLoader = new PacketLoader();
         packetLoader.loadAllPacket();
 
-        Server server = new Server();
-        server.connect();
+        HMCServer hmcServer = new HMCServer();
+        hmcServer.connect();
 
-        int sleepTime = 9000;
-//        while (true) {
-//            server.command(Command.MATRIX);
-//            Thread.sleep(sleepTime);
-//
+        RemoteHMCServer remoteHMCServer = new RemoteHMCServer();
+        remoteHMCServer.waitClient(hmcServer);
+    }
 
-
-        for (int i = 0; i < 10; ++i) {
-            server.command(Command.VIDEO_WALL_ENTER);
-            server.command(Command.VIDEO_WALL_INPUT_1);
-            Thread.sleep(sleepTime);
-
-            server.command(Command.VIDEO_WALL_ENTER);
-            server.command(Command.VIDEO_WALL_INPUT_2);
-            Thread.sleep(sleepTime);
-
-            server.command(Command.MULTI_VIEWER_ENTER);
-            server.command(Command.MULTI_VIEWER_MODE_3);
-            server.command(Command.MULTI_VIEWER_MAIN_3);
-            Thread.sleep(sleepTime);
+    private void waitClient(HMCServer hmcServer) {
+        try {
+            Socket session = serverSocket.accept();
+            new Thread(new RemoteSession(session, hmcServer)).start();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
