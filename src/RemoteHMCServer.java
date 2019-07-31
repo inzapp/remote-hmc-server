@@ -1,15 +1,14 @@
-import com.sun.xml.internal.bind.v2.runtime.reflect.Lister;
-
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 class pRes {
-    public static final int PORT = 8000;
+    public static final int PORT_TCP = 8000;
+    public static final int PORT_UDP = 30600;
     public static final int BUFSIZE = 128;
 }
 
@@ -48,7 +47,7 @@ class PacketLoader {
             e.printStackTrace();
         }
 
-        byte[] byteArr = new byte[pRes.BUFSIZE];
+        byte[] byteArr = new byte[byteList.size()];
         for (int i = 0; i < byteList.size(); ++i)
             byteArr[i] = byteList.get(i);
 
@@ -58,15 +57,33 @@ class PacketLoader {
     }
 }
 
+class Server {
+    public String getSwitcherIpAddress() {
+        try {
+            DatagramSocket dSocket = new DatagramSocket();
+            DatagramPacket sendPacket = new DatagramPacket(Packet.SEARCH, Packet.SEARCH.length, InetAddress.getByName("255.255.255.255"), pRes.PORT_UDP);
+            dSocket.setBroadcast(true);
+            dSocket.send(sendPacket);
+
+            byte[] buffer = new byte[pRes.BUFSIZE];
+            DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length, InetAddress.getByName("255.255.255.255"), pRes.PORT_UDP);
+            dSocket.receive(receivePacket);
+
+            return receivePacket.getAddress().getHostAddress();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+}
+
 public class RemoteHMCServer {
     public static void main(String[] args) {
         PacketLoader packetLoader = new PacketLoader();
         packetLoader.loadAllPacket();
-//        try {
-//            String myIp = InetAddress.getLocalHost().getHostAddress();
-//            DatagramSocket dSocket = new DatagramSocket();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+
+        Server server = new Server();
+        System.out.println(server.getSwitcherIpAddress());
     }
 }
