@@ -7,58 +7,70 @@ import java.util.ArrayList;
 import java.util.List;
 
 class pRes {
-    public static final int PORT_TCP = 8000;
-    public static final int PORT_UDP = 30600;
-    public static final int TCP_CONN_TIMEOUT = 5000;
-    public static final int BUFSIZE = 128;
+    static final int PORT_TCP = 8000;
+    static final int PORT_UDP = 30600;
+    static final int TCP_CONN_TIMEOUT = 5000;
+    static final int BUFSIZE = 128;
 }
 
 class PacketFileName {
-    public static final String PACKET_DIR = "packet";
-    public static final String SEARCH = PACKET_DIR + "\\search.txt";
-    public static final String MATRIX = PACKET_DIR + "\\matrix.txt";
-    public static final String MULTI_VIEWER_111 = PACKET_DIR + "\\multi_viewer_111.txt";
-    public static final String MULTI_VIEWER_112 = PACKET_DIR + "\\multi_viewer_112.txt";
-    public static final String MULTI_VIEWER_113 = PACKET_DIR + "\\multi_viewer_113.txt";
-    public static final String MULTI_VIEWER_114 = PACKET_DIR + "\\multi_viewer_114.txt";
-
-    public static final String MULTI_VIEWER_211 = PACKET_DIR + "\\multi_viewer_211.txt";
-
+    private static final String PACKET_DIR = "packet";
+    static final String SEARCH = PACKET_DIR + "\\search.txt";
+    static final String MATRIX = PACKET_DIR + "\\matrix.txt";
+    static final String MULTI_VIEWER_ENTER = PACKET_DIR + "\\enter_multi_viewer.txt";
+    static final String MULTI_VIEWER_MODE_1 = PACKET_DIR + "\\multi_viewer_mode_1.txt";
+    static final String MULTI_VIEWER_MODE_2 = PACKET_DIR + "\\multi_viewer_mode_2.txt";
+    static final String MULTI_VIEWER_MODE_3 = PACKET_DIR + "\\multi_viewer_mode_3.txt";
+    static final String MULTI_VIEWER_MODE_4 = PACKET_DIR + "\\multi_viewer_mode_4.txt";
+    static final String MULTI_VIEWER_MAIN_1 = PACKET_DIR + "\\multi_viewer_main_1.txt";
+    static final String MULTI_VIEWER_MAIN_2 = PACKET_DIR + "\\multi_viewer_main_2.txt";
+    static final String MULTI_VIEWER_MAIN_3 = PACKET_DIR + "\\multi_viewer_main_3.txt";
+    static final String MULTI_VIEWER_MAIN_4 = PACKET_DIR + "\\multi_viewer_main_4.txt";
 }
 
 class Packet {
-    public static byte[] SEARCH;
-    public static byte[] MATRIX;
+    static byte[] SEARCH;
+    static byte[] MATRIX;
 
-    public static byte[] MULTI_VIEWER_111;
-    public static byte[] MULTI_VIEWER_112;
-    public static byte[] MULTI_VIEWER_113;
-    public static byte[] MULTI_VIEWER_114;
-
-    public static byte[] MULTI_VIEWER_211;
+    static byte[] MULTI_VIEWER_ENTER;
+    static byte[] MULTI_VIEWER_MODE_1;
+    static byte[] MULTI_VIEWER_MODE_2;
+    static byte[] MULTI_VIEWER_MODE_3;
+    static byte[] MULTI_VIEWER_MODE_4;
+    static byte[] MULTI_VIEWER_MAIN_1;
+    static byte[] MULTI_VIEWER_MAIN_2;
+    static byte[] MULTI_VIEWER_MAIN_3;
+    static byte[] MULTI_VIEWER_MAIN_4;
 }
 
 class Command {
-    public static final int MATRIX = 1;
-    public static final int MULTI_VIEWER_111 = 111;
-    public static final int MULTI_VIEWER_112 = 112;
-    public static final int MULTI_VIEWER_113 = 113;
-    public static final int MULTI_VIEWER_114 = 114;
+    static final int MATRIX = 1;
 
-    public static final int MULTI_VIEWER_211 = 211;
+    static final int MULTI_VIEWER_ENTER = 2;
+    static final int MULTI_VIEWER_MODE_1 = 10;
+    static final int MULTI_VIEWER_MODE_2 = 20;
+    static final int MULTI_VIEWER_MODE_3 = 30;
+    static final int MULTI_VIEWER_MODE_4 = 40;
+    static final int MULTI_VIEWER_MAIN_1 = 100;
+    static final int MULTI_VIEWER_MAIN_2 = 200;
+    static final int MULTI_VIEWER_MAIN_3 = 300;
+    static final int MULTI_VIEWER_MAIN_4 = 400;
 }
 
 class PacketLoader {
-    public void loadAllPacket() {
+    void loadAllPacket() {
         System.out.println("start loading packet from file...");
         Packet.SEARCH = load(PacketFileName.SEARCH);
         Packet.MATRIX = load(PacketFileName.MATRIX);
-        Packet.MULTI_VIEWER_111 = load(PacketFileName.MULTI_VIEWER_111);
-        Packet.MULTI_VIEWER_112 = load(PacketFileName.MULTI_VIEWER_112);
-        Packet.MULTI_VIEWER_113 = load(PacketFileName.MULTI_VIEWER_113);
-        Packet.MULTI_VIEWER_114 = load(PacketFileName.MULTI_VIEWER_114);
-
-        Packet.MULTI_VIEWER_211 = load(PacketFileName.MULTI_VIEWER_211);
+        Packet.MULTI_VIEWER_ENTER = load(PacketFileName.MULTI_VIEWER_ENTER);
+        Packet.MULTI_VIEWER_MODE_1 = load(PacketFileName.MULTI_VIEWER_MODE_1);
+        Packet.MULTI_VIEWER_MODE_2 = load(PacketFileName.MULTI_VIEWER_MODE_2);
+        Packet.MULTI_VIEWER_MODE_3 = load(PacketFileName.MULTI_VIEWER_MODE_3);
+        Packet.MULTI_VIEWER_MODE_4 = load(PacketFileName.MULTI_VIEWER_MODE_4);
+        Packet.MULTI_VIEWER_MAIN_1 = load(PacketFileName.MULTI_VIEWER_MAIN_1);
+        Packet.MULTI_VIEWER_MAIN_2 = load(PacketFileName.MULTI_VIEWER_MAIN_2);
+        Packet.MULTI_VIEWER_MAIN_3 = load(PacketFileName.MULTI_VIEWER_MAIN_3);
+        Packet.MULTI_VIEWER_MAIN_4 = load(PacketFileName.MULTI_VIEWER_MAIN_4);
         System.out.println("loading packet from file success\n");
     }
 
@@ -96,7 +108,7 @@ class Server {
     private Socket socket;
     private Thread receiveThread;
 
-    public Server() {
+    Server() {
         receiveThread = new Thread(() -> {
             try {
                 byte[] buffer = new byte[pRes.BUFSIZE];
@@ -116,7 +128,7 @@ class Server {
         });
     }
 
-    public void connect() {
+    void connect() {
         try {
             socket = new Socket();
             String switcherIp = getSwitcherIpAddress();
@@ -148,7 +160,7 @@ class Server {
         return "found failure";
     }
 
-    public void command(int command) {
+    void command(int command) {
         switch (command) {
             case Command.MATRIX:
                 try {
@@ -158,41 +170,74 @@ class Server {
                 }
                 break;
 
-            case Command.MULTI_VIEWER_111:
+            case Command.MULTI_VIEWER_ENTER:
                 try {
-                    socket.getOutputStream().write(Packet.MULTI_VIEWER_111);
+                    socket.getOutputStream().write(Packet.MULTI_VIEWER_ENTER);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 break;
 
-            case Command.MULTI_VIEWER_112:
+            case Command.MULTI_VIEWER_MODE_1:
                 try {
-                    socket.getOutputStream().write(Packet.MULTI_VIEWER_112);
+                    socket.getOutputStream().write(Packet.MULTI_VIEWER_MODE_1);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 break;
 
-            case Command.MULTI_VIEWER_113:
+            case Command.MULTI_VIEWER_MODE_2:
                 try {
-                    socket.getOutputStream().write(Packet.MULTI_VIEWER_113);
+                    socket.getOutputStream().write(Packet.MULTI_VIEWER_MODE_2);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 break;
 
-            case Command.MULTI_VIEWER_114:
+            case Command.MULTI_VIEWER_MODE_3:
                 try {
-                    socket.getOutputStream().write(Packet.MULTI_VIEWER_114);
+                    socket.getOutputStream().write(Packet.MULTI_VIEWER_MODE_3);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 break;
 
-            case Command.MULTI_VIEWER_211:
+            case Command.MULTI_VIEWER_MODE_4:
                 try {
-                    socket.getOutputStream().write(Packet.MULTI_VIEWER_211);
+                    socket.getOutputStream().write(Packet.MULTI_VIEWER_MODE_4);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+
+
+            case Command.MULTI_VIEWER_MAIN_1:
+                try {
+                    socket.getOutputStream().write(Packet.MULTI_VIEWER_MAIN_1);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+
+            case Command.MULTI_VIEWER_MAIN_2:
+                try {
+                    socket.getOutputStream().write(Packet.MULTI_VIEWER_MAIN_2);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+
+            case Command.MULTI_VIEWER_MAIN_3:
+                try {
+                    socket.getOutputStream().write(Packet.MULTI_VIEWER_MAIN_3);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+
+            case Command.MULTI_VIEWER_MAIN_4:
+                try {
+                    socket.getOutputStream().write(Packet.MULTI_VIEWER_MAIN_4);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -222,21 +267,22 @@ public class RemoteHMCServer {
             server.command(Command.MATRIX);
             Thread.sleep(sleepTime);
 
-//            server.command(Command.MULTI_VIEWER_211);
-//            Thread.sleep(sleepTime);
-
-            server.command(Command.MULTI_VIEWER_111);
+            server.command(Command.MULTI_VIEWER_ENTER);
+            server.command(Command.MULTI_VIEWER_MODE_1);
+            server.command(Command.MULTI_VIEWER_MAIN_1);
             Thread.sleep(sleepTime);
-//
-//            server.command(Command.MULTI_VIEWER_112);
-//            Thread.sleep(sleepTime);
-//
-//            server.command(Command.MULTI_VIEWER_113);
-//            Thread.sleep(sleepTime);
-//
-//            server.command(Command.MULTI_VIEWER_114);
-//            Thread.sleep(sleepTime);
 
+            server.command(Command.MULTI_VIEWER_ENTER);
+            server.command(Command.MULTI_VIEWER_MODE_2);
+            Thread.sleep(sleepTime);
+
+            server.command(Command.MULTI_VIEWER_ENTER);
+            server.command(Command.MULTI_VIEWER_MODE_3);
+            Thread.sleep(sleepTime);
+
+            server.command(Command.MULTI_VIEWER_ENTER);
+            server.command(Command.MULTI_VIEWER_MODE_4);
+            Thread.sleep(sleepTime);
         }
     }
 }
