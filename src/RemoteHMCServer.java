@@ -371,11 +371,263 @@ public class RemoteHMCServer {
 
                 hmcServer.command(Command.MATRIX);
                 hmcServer.disconnect();;
-                response(exchange, "true");
+                response(exchange, "success command");
             });
 
-            httpServer.createContext("/multi111", exchange -> {
+            httpServer.createContext("/multi_viewer_11", exchange -> {
+                if (!hmcServer.connect()) {
+                    response(exchange, "connection failure");
+                    return;
+                }
 
+                hmcServer.command(Command.MULTI_VIEWER_ENTER);
+                hmcServer.command(Command.MULTI_VIEWER_MODE_1);
+                hmcServer.command(Command.MULTI_VIEWER_MAIN_1);
+                hmcServer.disconnect();
+                response(exchange, "success command");
+            });
+
+            httpServer.createContext("/multi_viewer_12", exchange -> {
+                if (!hmcServer.connect()) {
+                    response(exchange, "connection failure");
+                    return;
+                }
+
+                hmcServer.command(Command.MULTI_VIEWER_ENTER);
+                hmcServer.command(Command.MULTI_VIEWER_MODE_1);
+                hmcServer.command(Command.MULTI_VIEWER_MAIN_2);
+                hmcServer.disconnect();
+                response(exchange, "success command");
+            });
+
+            httpServer.createContext("/multi_viewer_13", exchange -> {
+                if (!hmcServer.connect()) {
+                    response(exchange, "connection failure");
+                    return;
+                }
+
+                hmcServer.command(Command.MULTI_VIEWER_ENTER);
+                hmcServer.command(Command.MULTI_VIEWER_MODE_1);
+                hmcServer.command(Command.MULTI_VIEWER_MAIN_3);
+                hmcServer.disconnect();
+                response(exchange, "success command");
+            });
+
+            httpServer.createContext("/multi_viewer_14", exchange -> {
+                if (!hmcServer.connect()) {
+                    response(exchange, "connection failure");
+                    return;
+                }
+
+                hmcServer.command(Command.MULTI_VIEWER_ENTER);
+                hmcServer.command(Command.MULTI_VIEWER_MODE_1);
+                hmcServer.command(Command.MULTI_VIEWER_MAIN_4);
+                hmcServer.disconnect();
+                response(exchange, "success command");
+            });
+
+            httpServer.createContext("/multi_viewer_21", exchange -> {
+                if (!hmcServer.connect()) {
+                    response(exchange, "connection failure");
+                    return;
+                }
+
+                hmcServer.command(Command.MULTI_VIEWER_ENTER);
+                hmcServer.command(Command.MULTI_VIEWER_MODE_2);
+                hmcServer.command(Command.MULTI_VIEWER_MAIN_1);
+                hmcServer.disconnect();
+                response(exchange, "success command");
+            });
+
+            httpServer.createContext("/multi_viewer_22", exchange -> {
+                if (!hmcServer.connect()) {
+                    response(exchange, "connection failure");
+                    return;
+                }
+
+                hmcServer.command(Command.MULTI_VIEWER_ENTER);
+                hmcServer.command(Command.MULTI_VIEWER_MODE_2);
+                hmcServer.command(Command.MULTI_VIEWER_MAIN_2);
+                hmcServer.disconnect();
+                response(exchange, "success command");
+            });
+
+            httpServer.createContext("/multi_viewer_23", exchange -> {
+                if (!hmcServer.connect()) {
+                    response(exchange, "connection failure");
+                    return;
+                }
+
+                hmcServer.command(Command.MULTI_VIEWER_ENTER);
+                hmcServer.command(Command.MULTI_VIEWER_MODE_2);
+                hmcServer.command(Command.MULTI_VIEWER_MAIN_3);
+                hmcServer.disconnect();
+                response(exchange, "success command");
+            });
+
+            httpServer.createContext("/multi_viewer_24", exchange -> {
+                if (!hmcServer.connect()) {
+                    response(exchange, "connection failure");
+                    return;
+                }
+
+                hmcServer.command(Command.MULTI_VIEWER_ENTER);
+                hmcServer.command(Command.MULTI_VIEWER_MODE_2);
+                hmcServer.command(Command.MULTI_VIEWER_MAIN_4);
+                hmcServer.disconnect();
+                response(exchange, "success command");
+            });
+
+            httpServer.createContext("/multi_viewer_31", exchange -> {
+                if (!hmcServer.connect()) {
+                    response(exchange, "connection failure");
+                    return;
+                }
+
+                hmcServer.command(Command.MULTI_VIEWER_ENTER);
+                hmcServer.command(Command.MULTI_VIEWER_MODE_3);
+                hmcServer.command(Command.MULTI_VIEWER_MAIN_1);
+                hmcServer.disconnect();
+                response(exchange, "success command");
+            });
+
+            httpServer.createContext("/multi_viewer_32", exchange -> {
+                if (!hmcServer.connect()) {
+                    response(exchange, "connection failure");
+                    return;
+                }
+
+                hmcServer.command(Command.MULTI_VIEWER_ENTER);
+                hmcServer.command(Command.MULTI_VIEWER_MODE_3);
+                hmcServer.command(Command.MULTI_VIEWER_MAIN_2);
+                hmcServer.disconnect();
+                response(exchange, "success command");
+            });
+
+            httpServer.createContext("/multi_viewer_33", exchange -> {
+                if (!hmcServer.connect()) {
+                    response(exchange, "connection failure");
+                    return;
+                }
+
+                hmcServer.command(Command.MULTI_VIEWER_ENTER);
+                hmcServer.command(Command.MULTI_VIEWER_MODE_3);
+                hmcServer.command(Command.MULTI_VIEWER_MAIN_3);
+                hmcServer.disconnect();
+                response(exchange, "success command");
+            });
+
+            httpServer.createContext("/multi_viewer_34", exchange -> {
+                if (!hmcServer.connect()) {
+                    response(exchange, "connection failure");
+                    return;
+                }
+
+                hmcServer.command(Command.MULTI_VIEWER_ENTER);
+                hmcServer.command(Command.MULTI_VIEWER_MODE_3);
+                hmcServer.command(Command.MULTI_VIEWER_MAIN_4);
+                hmcServer.disconnect();
+                response(exchange, "success command");
+            });
+
+            httpServer.createContext("/multi_viewer_41", exchange -> {
+                if (!hmcServer.connect()) {
+                    response(exchange, "connection failure");
+                    return;
+                }
+
+                hmcServer.command(Command.MULTI_VIEWER_ENTER);
+                hmcServer.command(Command.MULTI_VIEWER_MODE_4);
+                hmcServer.command(Command.MULTI_VIEWER_MAIN_1);
+                hmcServer.disconnect();
+                response(exchange, "success command");
+            });
+
+            httpServer.createContext("/multi_viewer_42", exchange -> {
+                if (!hmcServer.connect()) {
+                    response(exchange, "connection failure");
+                    return;
+                }
+
+                hmcServer.command(Command.MULTI_VIEWER_ENTER);
+                hmcServer.command(Command.MULTI_VIEWER_MODE_4);
+                hmcServer.command(Command.MULTI_VIEWER_MAIN_2);
+                hmcServer.disconnect();
+                response(exchange, "success command");
+            });
+
+            httpServer.createContext("/multi_viewer_43", exchange -> {
+                if (!hmcServer.connect()) {
+                    response(exchange, "connection failure");
+                    return;
+                }
+
+                hmcServer.command(Command.MULTI_VIEWER_ENTER);
+                hmcServer.command(Command.MULTI_VIEWER_MODE_4);
+                hmcServer.command(Command.MULTI_VIEWER_MAIN_3);
+                hmcServer.disconnect();
+                response(exchange, "success command");
+            });
+
+            httpServer.createContext("/multi_viewer_44", exchange -> {
+                if (!hmcServer.connect()) {
+                    response(exchange, "connection failure");
+                    return;
+                }
+
+                hmcServer.command(Command.MULTI_VIEWER_ENTER);
+                hmcServer.command(Command.MULTI_VIEWER_MODE_4);
+                hmcServer.command(Command.MULTI_VIEWER_MAIN_4);
+                hmcServer.disconnect();
+                response(exchange, "success command");
+            });
+
+            httpServer.createContext("/wall_1", exchange -> {
+                if (!hmcServer.connect()) {
+                    response(exchange, "connection failure");
+                    return;
+                }
+
+                hmcServer.command(Command.VIDEO_WALL_ENTER);
+                hmcServer.command(Command.VIDEO_WALL_INPUT_1);
+                hmcServer.disconnect();
+                response(exchange, "success command");
+            });
+
+            httpServer.createContext("/wall_2", exchange -> {
+                if (!hmcServer.connect()) {
+                    response(exchange, "connection failure");
+                    return;
+                }
+
+                hmcServer.command(Command.VIDEO_WALL_ENTER);
+                hmcServer.command(Command.VIDEO_WALL_INPUT_2);
+                hmcServer.disconnect();
+                response(exchange, "success command");
+            });
+
+            httpServer.createContext("/wall_3", exchange -> {
+                if (!hmcServer.connect()) {
+                    response(exchange, "connection failure");
+                    return;
+                }
+
+                hmcServer.command(Command.VIDEO_WALL_ENTER);
+                hmcServer.command(Command.VIDEO_WALL_INPUT_3);
+                hmcServer.disconnect();
+                response(exchange, "success command");
+            });
+
+            httpServer.createContext("/wall_4", exchange -> {
+                if (!hmcServer.connect()) {
+                    response(exchange, "connection failure");
+                    return;
+                }
+
+                hmcServer.command(Command.VIDEO_WALL_ENTER);
+                hmcServer.command(Command.VIDEO_WALL_INPUT_4);
+                hmcServer.disconnect();
+                response(exchange, "success command");
             });
             httpServer.start();
             System.out.println("web server initialization success\n");
