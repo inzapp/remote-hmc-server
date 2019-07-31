@@ -17,15 +17,25 @@ class PacketFileName {
     private static final String PACKET_DIR = "packet";
     static final String SEARCH = PACKET_DIR + "\\search.txt";
     static final String MATRIX = PACKET_DIR + "\\matrix.txt";
+
     static final String MULTI_VIEWER_ENTER = PACKET_DIR + "\\enter_multi_viewer.txt";
+
     static final String MULTI_VIEWER_MODE_1 = PACKET_DIR + "\\multi_viewer_mode_1.txt";
     static final String MULTI_VIEWER_MODE_2 = PACKET_DIR + "\\multi_viewer_mode_2.txt";
     static final String MULTI_VIEWER_MODE_3 = PACKET_DIR + "\\multi_viewer_mode_3.txt";
     static final String MULTI_VIEWER_MODE_4 = PACKET_DIR + "\\multi_viewer_mode_4.txt";
+
     static final String MULTI_VIEWER_MAIN_1 = PACKET_DIR + "\\multi_viewer_main_1.txt";
     static final String MULTI_VIEWER_MAIN_2 = PACKET_DIR + "\\multi_viewer_main_2.txt";
     static final String MULTI_VIEWER_MAIN_3 = PACKET_DIR + "\\multi_viewer_main_3.txt";
     static final String MULTI_VIEWER_MAIN_4 = PACKET_DIR + "\\multi_viewer_main_4.txt";
+
+    static final String VIDEO_WALL_ENTER = PACKET_DIR + "\\video_wall_enter.txt";
+
+    static final String VIDEO_WALL_INPUT_1 = PACKET_DIR + "\\video_wall_input_1.txt";
+    static final String VIDEO_WALL_INPUT_2 = PACKET_DIR + "\\video_wall_input_2.txt";
+    static final String VIDEO_WALL_INPUT_3 = PACKET_DIR + "\\video_wall_input_3.txt";
+    static final String VIDEO_WALL_INPUT_4 = PACKET_DIR + "\\video_wall_input_4.txt";
 }
 
 class Packet {
@@ -33,28 +43,43 @@ class Packet {
     static byte[] MATRIX;
 
     static byte[] MULTI_VIEWER_ENTER;
+
     static byte[] MULTI_VIEWER_MODE_1;
     static byte[] MULTI_VIEWER_MODE_2;
     static byte[] MULTI_VIEWER_MODE_3;
     static byte[] MULTI_VIEWER_MODE_4;
+
     static byte[] MULTI_VIEWER_MAIN_1;
     static byte[] MULTI_VIEWER_MAIN_2;
     static byte[] MULTI_VIEWER_MAIN_3;
     static byte[] MULTI_VIEWER_MAIN_4;
+
+    static byte[] VIDEO_WALL_ENTER;
+    static byte[] VIDEO_WALL_INPUT_1;
+    static byte[] VIDEO_WALL_INPUT_2;
+    static byte[] VIDEO_WALL_INPUT_3;
+    static byte[] VIDEO_WALL_INPUT_4;
 }
 
 class Command {
     static final int MATRIX = 1;
-
     static final int MULTI_VIEWER_ENTER = 2;
-    static final int MULTI_VIEWER_MODE_1 = 10;
-    static final int MULTI_VIEWER_MODE_2 = 20;
-    static final int MULTI_VIEWER_MODE_3 = 30;
-    static final int MULTI_VIEWER_MODE_4 = 40;
-    static final int MULTI_VIEWER_MAIN_1 = 100;
-    static final int MULTI_VIEWER_MAIN_2 = 200;
-    static final int MULTI_VIEWER_MAIN_3 = 300;
-    static final int MULTI_VIEWER_MAIN_4 = 400;
+
+    static final int MULTI_VIEWER_MODE_1 = 21;
+    static final int MULTI_VIEWER_MODE_2 = 22;
+    static final int MULTI_VIEWER_MODE_3 = 23;
+    static final int MULTI_VIEWER_MODE_4 = 24;
+
+    static final int MULTI_VIEWER_MAIN_1 = 201;
+    static final int MULTI_VIEWER_MAIN_2 = 202;
+    static final int MULTI_VIEWER_MAIN_3 = 203;
+    static final int MULTI_VIEWER_MAIN_4 = 204;
+
+    static final int VIDEO_WALL_ENTER = 3;
+    static final int VIDEO_WALL_INPUT_1 = 31;
+    static final int VIDEO_WALL_INPUT_2 = 32;
+    static final int VIDEO_WALL_INPUT_3 = 33;
+    static final int VIDEO_WALL_INPUT_4 = 34;
 }
 
 class PacketLoader {
@@ -62,15 +87,24 @@ class PacketLoader {
         System.out.println("start loading packet from file...");
         Packet.SEARCH = load(PacketFileName.SEARCH);
         Packet.MATRIX = load(PacketFileName.MATRIX);
+
         Packet.MULTI_VIEWER_ENTER = load(PacketFileName.MULTI_VIEWER_ENTER);
+
         Packet.MULTI_VIEWER_MODE_1 = load(PacketFileName.MULTI_VIEWER_MODE_1);
         Packet.MULTI_VIEWER_MODE_2 = load(PacketFileName.MULTI_VIEWER_MODE_2);
         Packet.MULTI_VIEWER_MODE_3 = load(PacketFileName.MULTI_VIEWER_MODE_3);
         Packet.MULTI_VIEWER_MODE_4 = load(PacketFileName.MULTI_VIEWER_MODE_4);
+
         Packet.MULTI_VIEWER_MAIN_1 = load(PacketFileName.MULTI_VIEWER_MAIN_1);
         Packet.MULTI_VIEWER_MAIN_2 = load(PacketFileName.MULTI_VIEWER_MAIN_2);
         Packet.MULTI_VIEWER_MAIN_3 = load(PacketFileName.MULTI_VIEWER_MAIN_3);
         Packet.MULTI_VIEWER_MAIN_4 = load(PacketFileName.MULTI_VIEWER_MAIN_4);
+
+        Packet.VIDEO_WALL_ENTER = load(PacketFileName.VIDEO_WALL_ENTER);
+        Packet.VIDEO_WALL_INPUT_1 = load(PacketFileName.VIDEO_WALL_INPUT_1);
+        Packet.VIDEO_WALL_INPUT_2 = load(PacketFileName.VIDEO_WALL_INPUT_2);
+        Packet.VIDEO_WALL_INPUT_3 = load(PacketFileName.VIDEO_WALL_INPUT_3);
+        Packet.VIDEO_WALL_INPUT_4 = load(PacketFileName.VIDEO_WALL_INPUT_4);
         System.out.println("loading packet from file success\n");
     }
 
@@ -210,7 +244,6 @@ class Server {
                 }
                 break;
 
-
             case Command.MULTI_VIEWER_MAIN_1:
                 try {
                     socket.getOutputStream().write(Packet.MULTI_VIEWER_MAIN_1);
@@ -243,12 +276,51 @@ class Server {
                 }
                 break;
 
+            case Command.VIDEO_WALL_ENTER:
+                try {
+                    socket.getOutputStream().write(Packet.VIDEO_WALL_ENTER);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+
+            case Command.VIDEO_WALL_INPUT_1:
+                try {
+                    socket.getOutputStream().write(Packet.VIDEO_WALL_INPUT_1);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+
+            case Command.VIDEO_WALL_INPUT_2:
+                try {
+                    socket.getOutputStream().write(Packet.VIDEO_WALL_INPUT_2);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+
+            case Command.VIDEO_WALL_INPUT_3:
+                try {
+                    socket.getOutputStream().write(Packet.VIDEO_WALL_INPUT_3);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+
+            case Command.VIDEO_WALL_INPUT_4:
+                try {
+                    socket.getOutputStream().write(Packet.VIDEO_WALL_INPUT_4);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
             default:
                 break;
         }
 
         try {
-            Thread.sleep(10);
+            Thread.sleep(30);
         } catch (InterruptedException ignored) {
         }
     }
@@ -262,26 +334,25 @@ public class RemoteHMCServer {
         Server server = new Server();
         server.connect();
 
-        int sleepTime = 1000;
-        while (true) {
-            server.command(Command.MATRIX);
+        int sleepTime = 9000;
+//        while (true) {
+//            server.command(Command.MATRIX);
+//            Thread.sleep(sleepTime);
+//
+
+
+        for (int i = 0; i < 10; ++i) {
+            server.command(Command.VIDEO_WALL_ENTER);
+            server.command(Command.VIDEO_WALL_INPUT_1);
             Thread.sleep(sleepTime);
 
-            server.command(Command.MULTI_VIEWER_ENTER);
-            server.command(Command.MULTI_VIEWER_MODE_1);
-            server.command(Command.MULTI_VIEWER_MAIN_1);
-            Thread.sleep(sleepTime);
-
-            server.command(Command.MULTI_VIEWER_ENTER);
-            server.command(Command.MULTI_VIEWER_MODE_2);
+            server.command(Command.VIDEO_WALL_ENTER);
+            server.command(Command.VIDEO_WALL_INPUT_2);
             Thread.sleep(sleepTime);
 
             server.command(Command.MULTI_VIEWER_ENTER);
             server.command(Command.MULTI_VIEWER_MODE_3);
-            Thread.sleep(sleepTime);
-
-            server.command(Command.MULTI_VIEWER_ENTER);
-            server.command(Command.MULTI_VIEWER_MODE_4);
+            server.command(Command.MULTI_VIEWER_MAIN_3);
             Thread.sleep(sleepTime);
         }
     }
