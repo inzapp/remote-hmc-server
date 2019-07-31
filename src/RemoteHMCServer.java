@@ -18,18 +18,34 @@ class PacketFileName {
     public static final String SEARCH = PACKET_DIR + "\\search.txt";
     public static final String MATRIX = PACKET_DIR + "\\matrix.txt";
     public static final String MULTI_VIEWER_111 = PACKET_DIR + "\\multi_viewer_111.txt";
+    public static final String MULTI_VIEWER_112 = PACKET_DIR + "\\multi_viewer_112.txt";
+    public static final String MULTI_VIEWER_113 = PACKET_DIR + "\\multi_viewer_113.txt";
+    public static final String MULTI_VIEWER_114 = PACKET_DIR + "\\multi_viewer_114.txt";
+
+    public static final String MULTI_VIEWER_211 = PACKET_DIR + "\\multi_viewer_211.txt";
 
 }
 
 class Packet {
     public static byte[] SEARCH;
     public static byte[] MATRIX;
+
     public static byte[] MULTI_VIEWER_111;
+    public static byte[] MULTI_VIEWER_112;
+    public static byte[] MULTI_VIEWER_113;
+    public static byte[] MULTI_VIEWER_114;
+
+    public static byte[] MULTI_VIEWER_211;
 }
 
 class Command {
     public static final int MATRIX = 1;
-    public static final int MULTI_VIEWER_111 = 2;
+    public static final int MULTI_VIEWER_111 = 111;
+    public static final int MULTI_VIEWER_112 = 112;
+    public static final int MULTI_VIEWER_113 = 113;
+    public static final int MULTI_VIEWER_114 = 114;
+
+    public static final int MULTI_VIEWER_211 = 211;
 }
 
 class PacketLoader {
@@ -38,6 +54,11 @@ class PacketLoader {
         Packet.SEARCH = load(PacketFileName.SEARCH);
         Packet.MATRIX = load(PacketFileName.MATRIX);
         Packet.MULTI_VIEWER_111 = load(PacketFileName.MULTI_VIEWER_111);
+        Packet.MULTI_VIEWER_112 = load(PacketFileName.MULTI_VIEWER_112);
+        Packet.MULTI_VIEWER_113 = load(PacketFileName.MULTI_VIEWER_113);
+        Packet.MULTI_VIEWER_114 = load(PacketFileName.MULTI_VIEWER_114);
+
+        Packet.MULTI_VIEWER_211 = load(PacketFileName.MULTI_VIEWER_211);
         System.out.println("loading packet from file success\n");
     }
 
@@ -144,6 +165,39 @@ class Server {
                     e.printStackTrace();
                 }
                 break;
+
+            case Command.MULTI_VIEWER_112:
+                try {
+                    socket.getOutputStream().write(Packet.MULTI_VIEWER_112);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+
+            case Command.MULTI_VIEWER_113:
+                try {
+                    socket.getOutputStream().write(Packet.MULTI_VIEWER_113);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+
+            case Command.MULTI_VIEWER_114:
+                try {
+                    socket.getOutputStream().write(Packet.MULTI_VIEWER_114);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+
+            case Command.MULTI_VIEWER_211:
+                try {
+                    socket.getOutputStream().write(Packet.MULTI_VIEWER_211);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+
             default:
                 break;
         }
@@ -156,13 +210,33 @@ class Server {
 }
 
 public class RemoteHMCServer {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         PacketLoader packetLoader = new PacketLoader();
         packetLoader.loadAllPacket();
 
         Server server = new Server();
         server.connect();
 
-        server.command(Command.MULTI_VIEWER_111);
+        int sleepTime = 1000;
+        while (true) {
+            server.command(Command.MATRIX);
+            Thread.sleep(sleepTime);
+
+//            server.command(Command.MULTI_VIEWER_211);
+//            Thread.sleep(sleepTime);
+
+            server.command(Command.MULTI_VIEWER_111);
+            Thread.sleep(sleepTime);
+//
+//            server.command(Command.MULTI_VIEWER_112);
+//            Thread.sleep(sleepTime);
+//
+//            server.command(Command.MULTI_VIEWER_113);
+//            Thread.sleep(sleepTime);
+//
+//            server.command(Command.MULTI_VIEWER_114);
+//            Thread.sleep(sleepTime);
+
+        }
     }
 }
