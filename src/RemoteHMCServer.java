@@ -245,9 +245,8 @@ public class RemoteHMCServer {
                     response(exchange, "connection failure");
                     return;
                 }
-                hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.MATRIX
-                )));
+
+                hmcServer.send(new ArrayList<>(Arrays.asList(Packet.MATRIX)));
                 hmcServer.disconnect();
                 response(exchange, "success command");
                 pRes.IS_WALL_MODE = false;
@@ -270,7 +269,7 @@ public class RemoteHMCServer {
                         Packet.MULTI_VIEWER_MODE[viewMode],
                         Packet.MULTI_VIEWER_MAIN[mainWindow]
                 )));
-
+                
                 hmcServer.disconnect();
                 response(exchange, "success command");
                 pRes.IS_WALL_MODE = false;
@@ -289,9 +288,10 @@ public class RemoteHMCServer {
                 hmcServer.send(new ArrayList<>(Arrays.asList(Packet.VIDEO_WALL_ENTER)));
                 sleepIfWallModeIs(false);
                 hmcServer.send(new ArrayList<>(Arrays.asList(Packet.VIDEO_WALL_INPUT[wallMain])));
-                
+
                 hmcServer.disconnect();
                 response(exchange, "success command");
+                pRes.IS_WALL_MODE = true;
             });
 
             httpServer.start();
@@ -315,7 +315,6 @@ public class RemoteHMCServer {
 
     private void sleepIfWallModeIs(boolean wallMode) {
         if(pRes.IS_WALL_MODE == wallMode) {
-            pRes.IS_WALL_MODE = !pRes.IS_WALL_MODE;
             try {
                 Thread.sleep(pRes.SLEEP_WALL);
             } catch (InterruptedException e) {
