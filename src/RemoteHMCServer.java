@@ -4,7 +4,6 @@ import com.sun.net.httpserver.HttpServer;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 class pRes {
@@ -12,7 +11,6 @@ class pRes {
     static final int PORT_UDP = 30600;
     static final int PORT_REMOTE_HTTP = 10232;
     static final int TCP_CONN_TIMEOUT = 5000;
-    static final int SLEEP_SEND = 0;
     static final int SLEEP_WALL = 1500;
     static final int BUFSIZE = 128;
     static boolean IS_WALL_MODE = false;
@@ -127,7 +125,7 @@ class HMCServer {
         try {
             refresh();
             socket = new Socket();
-            String switcherIp = getSwitcherIpAddress();
+            String switcherIp = getHMCIpAddress();
             System.out.println("\nnew connect");
             System.out.println("switcher ip address : " + switcherIp);
             socket.connect(new InetSocketAddress(switcherIp, pRes.PORT_TCP), pRes.TCP_CONN_TIMEOUT);
@@ -159,14 +157,6 @@ class HMCServer {
         });
     }
 
-    private void interruptThread() {
-        try {
-            receiveThread.interrupt();
-        } catch (Exception e) {
-            // empty
-        }
-    }
-
     void disconnect() {
         try {
             socket.getOutputStream().close();
@@ -175,7 +165,15 @@ class HMCServer {
         }
     }
 
-    private String getSwitcherIpAddress() {
+    private void interruptThread() {
+        try {
+            receiveThread.interrupt();
+        } catch (Exception e) {
+            // empty
+        }
+    }
+
+    private String getHMCIpAddress() {
         try {
             DatagramSocket dSocket = new DatagramSocket();
             DatagramPacket sendPacket = new DatagramPacket(Packet.SEARCH, Packet.SEARCH.length, InetAddress.getByName("255.255.255.255"), pRes.PORT_UDP);
@@ -194,25 +192,10 @@ class HMCServer {
         return "found failure";
     }
 
-    void send(List<byte[]> packetList) {
-        for (byte[] packet : packetList) {
-            sendRawPacketToHMC(packet);
-            sleep(pRes.SLEEP_SEND);
-        }
-    }
-
-    private void sendRawPacketToHMC(byte[] buffer) {
+    void send(byte[] buffer) {
         try {
             socket.getOutputStream().write(buffer);
         } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void sleep(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -246,7 +229,7 @@ public class RemoteHMCServer {
                     return;
                 }
 
-                hmcServer.send(new ArrayList<>(Arrays.asList(Packet.MATRIX)));
+                hmcServer.send(Packet.MATRIX);
                 hmcServer.disconnect();
                 response(exchange, "success command");
                 pRes.IS_WALL_MODE = false;
@@ -263,13 +246,11 @@ public class RemoteHMCServer {
                     return;
                 }
 
-                hmcServer.send(new ArrayList<>(Arrays.asList(Packet.MULTI_VIEWER_ENTER)));
+                hmcServer.send(Packet.MULTI_VIEWER_ENTER);
                 sleepIfWallModeIs(true);
-                hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.MULTI_VIEWER_MODE[viewMode],
-                        Packet.MULTI_VIEWER_MAIN[mainWindow]
-                )));
-                
+                hmcServer.send(Packet.MULTI_VIEWER_MODE[viewMode]);
+                hmcServer.send(Packet.MULTI_VIEWER_MAIN[mainWindow]);
+
                 hmcServer.disconnect();
                 response(exchange, "success command");
                 pRes.IS_WALL_MODE = false;
@@ -285,9 +266,9 @@ public class RemoteHMCServer {
                     return;
                 }
 
-                hmcServer.send(new ArrayList<>(Arrays.asList(Packet.VIDEO_WALL_ENTER)));
+                hmcServer.send(Packet.VIDEO_WALL_ENTER);
                 sleepIfWallModeIs(false);
-                hmcServer.send(new ArrayList<>(Arrays.asList(Packet.VIDEO_WALL_INPUT[wallMain])));
+                hmcServer.send(Packet.VIDEO_WALL_INPUT[wallMain]);
 
                 hmcServer.disconnect();
                 response(exchange, "success command");
