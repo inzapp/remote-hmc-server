@@ -4,6 +4,7 @@ import com.sun.net.httpserver.HttpServer;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 class pRes {
@@ -62,27 +63,6 @@ class Packet {
     static byte[] VIDEO_WALL_INPUT_4;
 }
 
-class Command {
-    static final int MATRIX = 1;
-    static final int MULTI_VIEWER_ENTER = 2;
-
-    static final int MULTI_VIEWER_MODE_1 = 21;
-    static final int MULTI_VIEWER_MODE_2 = 22;
-    static final int MULTI_VIEWER_MODE_3 = 23;
-    static final int MULTI_VIEWER_MODE_4 = 24;
-
-    static final int MULTI_VIEWER_MAIN_1 = 201;
-    static final int MULTI_VIEWER_MAIN_2 = 202;
-    static final int MULTI_VIEWER_MAIN_3 = 203;
-    static final int MULTI_VIEWER_MAIN_4 = 204;
-
-    static final int VIDEO_WALL_ENTER = 3;
-    static final int VIDEO_WALL_INPUT_1 = 31;
-    static final int VIDEO_WALL_INPUT_2 = 32;
-    static final int VIDEO_WALL_INPUT_3 = 33;
-    static final int VIDEO_WALL_INPUT_4 = 34;
-}
-
 class PacketLoader {
     void loadAllPacket() {
         System.out.println("start loading packet from file...");
@@ -102,6 +82,7 @@ class PacketLoader {
         Packet.MULTI_VIEWER_MAIN_4 = load(PacketFileName.MULTI_VIEWER_MAIN_4);
 
         Packet.VIDEO_WALL_ENTER = load(PacketFileName.VIDEO_WALL_ENTER);
+
         Packet.VIDEO_WALL_INPUT_1 = load(PacketFileName.VIDEO_WALL_INPUT_1);
         Packet.VIDEO_WALL_INPUT_2 = load(PacketFileName.VIDEO_WALL_INPUT_2);
         Packet.VIDEO_WALL_INPUT_3 = load(PacketFileName.VIDEO_WALL_INPUT_3);
@@ -178,7 +159,7 @@ class HMCServer {
         });
     }
 
-    void interruptThread() {
+    private void interruptThread() {
         try {
             receiveThread.interrupt();
         } catch (Exception e) {
@@ -213,79 +194,18 @@ class HMCServer {
         return "found failure";
     }
 
-    void command(int command) {
-        switch (command) {
-            case Command.MATRIX:
-                send(Packet.MATRIX);
-                break;
-
-            case Command.MULTI_VIEWER_ENTER:
-                send(Packet.MULTI_VIEWER_ENTER);
-                break;
-
-            case Command.MULTI_VIEWER_MODE_1:
-                send(Packet.MULTI_VIEWER_MODE_1);
-                break;
-
-            case Command.MULTI_VIEWER_MODE_2:
-                send(Packet.MULTI_VIEWER_MODE_2);
-                break;
-
-            case Command.MULTI_VIEWER_MODE_3:
-                send(Packet.MULTI_VIEWER_MODE_3);
-                break;
-
-            case Command.MULTI_VIEWER_MODE_4:
-                send(Packet.MULTI_VIEWER_MODE_4);
-                break;
-
-            case Command.MULTI_VIEWER_MAIN_1:
-                send(Packet.MULTI_VIEWER_MAIN_1);
-                break;
-
-            case Command.MULTI_VIEWER_MAIN_2:
-                send(Packet.MULTI_VIEWER_MAIN_2);
-                break;
-
-            case Command.MULTI_VIEWER_MAIN_3:
-                send(Packet.MULTI_VIEWER_MAIN_3);
-                break;
-
-            case Command.MULTI_VIEWER_MAIN_4:
-                send(Packet.MULTI_VIEWER_MAIN_4);
-                break;
-
-            case Command.VIDEO_WALL_ENTER:
-                send(Packet.VIDEO_WALL_ENTER);
-                break;
-
-            case Command.VIDEO_WALL_INPUT_1:
-                send(Packet.VIDEO_WALL_INPUT_1);
-                break;
-
-            case Command.VIDEO_WALL_INPUT_2:
-                send(Packet.VIDEO_WALL_INPUT_2);
-                break;
-
-            case Command.VIDEO_WALL_INPUT_3:
-                send(Packet.VIDEO_WALL_INPUT_3);
-                break;
-
-            case Command.VIDEO_WALL_INPUT_4:
-                send(Packet.VIDEO_WALL_INPUT_4);
-                break;
-
-            default:
-                break;
-        }
-
-        try {
-            Thread.sleep(50);
-        } catch (InterruptedException ignored) {
+    void send(List<byte[]> packetList) {
+        for(byte[] packet : packetList) {
+            sendRawPacketToHMC(packet);
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    void send(byte[] buffer) {
+    void sendRawPacketToHMC(byte[] buffer) {
         try {
             socket.getOutputStream().write(buffer);
         } catch (IOException e) {
@@ -314,8 +234,9 @@ public class RemoteHMCServer {
                     response(exchange, "connection failure");
                     return;
                 }
-
-                hmcServer.command(Command.MATRIX);
+                hmcServer.send(new ArrayList<>(Arrays.asList(
+                        Packet.MATRIX
+                )));
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -325,10 +246,11 @@ public class RemoteHMCServer {
                     response(exchange, "connection failure");
                     return;
                 }
-
-                hmcServer.command(Command.MULTI_VIEWER_ENTER);
-                hmcServer.command(Command.MULTI_VIEWER_MODE_1);
-                hmcServer.command(Command.MULTI_VIEWER_MAIN_1);
+                hmcServer.send(new ArrayList<>(Arrays.asList(
+                        Packet.MULTI_VIEWER_ENTER,
+                        Packet.MULTI_VIEWER_MODE_1,
+                        Packet.MULTI_VIEWER_MAIN_1
+                )));
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -338,10 +260,11 @@ public class RemoteHMCServer {
                     response(exchange, "connection failure");
                     return;
                 }
-
-                hmcServer.command(Command.MULTI_VIEWER_ENTER);
-                hmcServer.command(Command.MULTI_VIEWER_MODE_1);
-                hmcServer.command(Command.MULTI_VIEWER_MAIN_2);
+                hmcServer.send(new ArrayList<>(Arrays.asList(
+                        Packet.MULTI_VIEWER_ENTER,
+                        Packet.MULTI_VIEWER_MODE_1,
+                        Packet.MULTI_VIEWER_MAIN_2
+                )));
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -352,9 +275,9 @@ public class RemoteHMCServer {
                     return;
                 }
 
-                hmcServer.command(Command.MULTI_VIEWER_ENTER);
-                hmcServer.command(Command.MULTI_VIEWER_MODE_1);
-                hmcServer.command(Command.MULTI_VIEWER_MAIN_3);
+                hmcServer.sendRawPacketToHMC(Packet.MULTI_VIEWER_ENTER);
+                hmcServer.sendRawPacketToHMC(Packet.MULTI_VIEWER_MODE_1);
+                hmcServer.sendRawPacketToHMC(Packet.MULTI_VIEWER_MAIN_3);
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -364,10 +287,11 @@ public class RemoteHMCServer {
                     response(exchange, "connection failure");
                     return;
                 }
-
-                hmcServer.command(Command.MULTI_VIEWER_ENTER);
-                hmcServer.command(Command.MULTI_VIEWER_MODE_1);
-                hmcServer.command(Command.MULTI_VIEWER_MAIN_4);
+                hmcServer.send(new ArrayList<>(Arrays.asList(
+                        Packet.MULTI_VIEWER_ENTER,
+                        Packet.MULTI_VIEWER_MODE_1,
+                        Packet.MULTI_VIEWER_MAIN_4
+                )));
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -377,10 +301,11 @@ public class RemoteHMCServer {
                     response(exchange, "connection failure");
                     return;
                 }
-
-                hmcServer.command(Command.MULTI_VIEWER_ENTER);
-                hmcServer.command(Command.MULTI_VIEWER_MODE_2);
-                hmcServer.command(Command.MULTI_VIEWER_MAIN_1);
+                hmcServer.send(new ArrayList<>(Arrays.asList(
+                        Packet.MULTI_VIEWER_ENTER,
+                        Packet.MULTI_VIEWER_MODE_2,
+                        Packet.MULTI_VIEWER_MAIN_4
+                )));
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -390,10 +315,11 @@ public class RemoteHMCServer {
                     response(exchange, "connection failure");
                     return;
                 }
-
-                hmcServer.command(Command.MULTI_VIEWER_ENTER);
-                hmcServer.command(Command.MULTI_VIEWER_MODE_2);
-                hmcServer.command(Command.MULTI_VIEWER_MAIN_2);
+                hmcServer.send(new ArrayList<>(Arrays.asList(
+                        Packet.MULTI_VIEWER_ENTER,
+                        Packet.MULTI_VIEWER_MODE_2,
+                        Packet.MULTI_VIEWER_MAIN_2
+                )));
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -403,10 +329,11 @@ public class RemoteHMCServer {
                     response(exchange, "connection failure");
                     return;
                 }
-
-                hmcServer.command(Command.MULTI_VIEWER_ENTER);
-                hmcServer.command(Command.MULTI_VIEWER_MODE_2);
-                hmcServer.command(Command.MULTI_VIEWER_MAIN_3);
+                hmcServer.send(new ArrayList<>(Arrays.asList(
+                        Packet.MULTI_VIEWER_ENTER,
+                        Packet.MULTI_VIEWER_MODE_2,
+                        Packet.MULTI_VIEWER_MAIN_3
+                )));
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -416,10 +343,11 @@ public class RemoteHMCServer {
                     response(exchange, "connection failure");
                     return;
                 }
-
-                hmcServer.command(Command.MULTI_VIEWER_ENTER);
-                hmcServer.command(Command.MULTI_VIEWER_MODE_2);
-                hmcServer.command(Command.MULTI_VIEWER_MAIN_4);
+                hmcServer.send(new ArrayList<>(Arrays.asList(
+                        Packet.MULTI_VIEWER_ENTER,
+                        Packet.MULTI_VIEWER_MODE_2,
+                        Packet.MULTI_VIEWER_MAIN_4
+                )));
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -429,10 +357,11 @@ public class RemoteHMCServer {
                     response(exchange, "connection failure");
                     return;
                 }
-
-                hmcServer.command(Command.MULTI_VIEWER_ENTER);
-                hmcServer.command(Command.MULTI_VIEWER_MODE_3);
-                hmcServer.command(Command.MULTI_VIEWER_MAIN_1);
+                hmcServer.send(new ArrayList<>(Arrays.asList(
+                        Packet.MULTI_VIEWER_ENTER,
+                        Packet.MULTI_VIEWER_MODE_3,
+                        Packet.MULTI_VIEWER_MAIN_1
+                )));
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -442,10 +371,11 @@ public class RemoteHMCServer {
                     response(exchange, "connection failure");
                     return;
                 }
-
-                hmcServer.command(Command.MULTI_VIEWER_ENTER);
-                hmcServer.command(Command.MULTI_VIEWER_MODE_3);
-                hmcServer.command(Command.MULTI_VIEWER_MAIN_2);
+                hmcServer.send(new ArrayList<>(Arrays.asList(
+                        Packet.MULTI_VIEWER_ENTER,
+                        Packet.MULTI_VIEWER_MODE_3,
+                        Packet.MULTI_VIEWER_MAIN_2
+                )));
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -455,10 +385,11 @@ public class RemoteHMCServer {
                     response(exchange, "connection failure");
                     return;
                 }
-
-                hmcServer.command(Command.MULTI_VIEWER_ENTER);
-                hmcServer.command(Command.MULTI_VIEWER_MODE_3);
-                hmcServer.command(Command.MULTI_VIEWER_MAIN_3);
+                hmcServer.send(new ArrayList<>(Arrays.asList(
+                        Packet.MULTI_VIEWER_ENTER,
+                        Packet.MULTI_VIEWER_MODE_3,
+                        Packet.MULTI_VIEWER_MAIN_3
+                )));
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -468,10 +399,11 @@ public class RemoteHMCServer {
                     response(exchange, "connection failure");
                     return;
                 }
-
-                hmcServer.command(Command.MULTI_VIEWER_ENTER);
-                hmcServer.command(Command.MULTI_VIEWER_MODE_3);
-                hmcServer.command(Command.MULTI_VIEWER_MAIN_4);
+                hmcServer.send(new ArrayList<>(Arrays.asList(
+                        Packet.MULTI_VIEWER_ENTER,
+                        Packet.MULTI_VIEWER_MODE_3,
+                        Packet.MULTI_VIEWER_MAIN_4
+                )));
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -481,10 +413,11 @@ public class RemoteHMCServer {
                     response(exchange, "connection failure");
                     return;
                 }
-
-                hmcServer.command(Command.MULTI_VIEWER_ENTER);
-                hmcServer.command(Command.MULTI_VIEWER_MODE_4);
-                hmcServer.command(Command.MULTI_VIEWER_MAIN_1);
+                hmcServer.send(new ArrayList<>(Arrays.asList(
+                        Packet.MULTI_VIEWER_ENTER,
+                        Packet.MULTI_VIEWER_MODE_4,
+                        Packet.MULTI_VIEWER_MAIN_1
+                )));
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -494,10 +427,11 @@ public class RemoteHMCServer {
                     response(exchange, "connection failure");
                     return;
                 }
-
-                hmcServer.command(Command.MULTI_VIEWER_ENTER);
-                hmcServer.command(Command.MULTI_VIEWER_MODE_4);
-                hmcServer.command(Command.MULTI_VIEWER_MAIN_2);
+                hmcServer.send(new ArrayList<>(Arrays.asList(
+                        Packet.MULTI_VIEWER_ENTER,
+                        Packet.MULTI_VIEWER_MODE_4,
+                        Packet.MULTI_VIEWER_MAIN_2
+                )));
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -507,10 +441,11 @@ public class RemoteHMCServer {
                     response(exchange, "connection failure");
                     return;
                 }
-
-                hmcServer.command(Command.MULTI_VIEWER_ENTER);
-                hmcServer.command(Command.MULTI_VIEWER_MODE_4);
-                hmcServer.command(Command.MULTI_VIEWER_MAIN_3);
+                hmcServer.send(new ArrayList<>(Arrays.asList(
+                        Packet.MULTI_VIEWER_ENTER,
+                        Packet.MULTI_VIEWER_MODE_4,
+                        Packet.MULTI_VIEWER_MAIN_3
+                )));
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -520,10 +455,11 @@ public class RemoteHMCServer {
                     response(exchange, "connection failure");
                     return;
                 }
-
-                hmcServer.command(Command.MULTI_VIEWER_ENTER);
-                hmcServer.command(Command.MULTI_VIEWER_MODE_4);
-                hmcServer.command(Command.MULTI_VIEWER_MAIN_4);
+                hmcServer.send(new ArrayList<>(Arrays.asList(
+                        Packet.MULTI_VIEWER_ENTER,
+                        Packet.MULTI_VIEWER_MODE_4,
+                        Packet.MULTI_VIEWER_MAIN_4
+                )));
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -533,9 +469,10 @@ public class RemoteHMCServer {
                     response(exchange, "connection failure");
                     return;
                 }
-
-                hmcServer.command(Command.VIDEO_WALL_ENTER);
-                hmcServer.command(Command.VIDEO_WALL_INPUT_1);
+                hmcServer.send(new ArrayList<>(Arrays.asList(
+                        Packet.VIDEO_WALL_ENTER,
+                        Packet.VIDEO_WALL_INPUT_1
+                )));
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -545,9 +482,10 @@ public class RemoteHMCServer {
                     response(exchange, "connection failure");
                     return;
                 }
-
-                hmcServer.command(Command.VIDEO_WALL_ENTER);
-                hmcServer.command(Command.VIDEO_WALL_INPUT_2);
+                hmcServer.send(new ArrayList<>(Arrays.asList(
+                        Packet.VIDEO_WALL_ENTER,
+                        Packet.VIDEO_WALL_INPUT_2
+                        )));
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -557,9 +495,10 @@ public class RemoteHMCServer {
                     response(exchange, "connection failure");
                     return;
                 }
-
-                hmcServer.command(Command.VIDEO_WALL_ENTER);
-                hmcServer.command(Command.VIDEO_WALL_INPUT_3);
+                hmcServer.send(new ArrayList<>(Arrays.asList(
+                        Packet.VIDEO_WALL_ENTER,
+                        Packet.VIDEO_WALL_INPUT_3
+                )));
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -569,9 +508,10 @@ public class RemoteHMCServer {
                     response(exchange, "connection failure");
                     return;
                 }
-
-                hmcServer.command(Command.VIDEO_WALL_ENTER);
-                hmcServer.command(Command.VIDEO_WALL_INPUT_4);
+                hmcServer.send(new ArrayList<>(Arrays.asList(
+                        Packet.VIDEO_WALL_ENTER,
+                        Packet.VIDEO_WALL_INPUT_4
+                )));
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
