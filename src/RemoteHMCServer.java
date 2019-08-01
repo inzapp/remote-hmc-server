@@ -12,7 +12,6 @@ class pRes {
     static final int PORT_REMOTE_HTTP = 10232;
     static final int TCP_CONN_TIMEOUT = 5000;
     static final int BUFSIZE = 128;
-    static final String REMOTE_SESSION_KEY = "[REMOTE_HMC_SERVER_KEY_10200392812738945698304958]";
 }
 
 class PacketFileName {
@@ -163,13 +162,7 @@ class HMCServer {
 
     private void refresh() {
         disconnect();
-
-        try {
-            receiveThread.interrupt();
-        } catch(Exception e) {
-            // empty
-        }
-
+        interruptThread();
         receiveThread = new Thread(() -> {
             try {
                 byte[] buffer = new byte[pRes.BUFSIZE];
@@ -180,13 +173,17 @@ class HMCServer {
                 }
             } catch (Exception e) {
                 System.out.println("connection down");
-                try {
-                    socket.getOutputStream().close();
-                } catch (IOException ignored) {
-                    // ignore
-                }
+                disconnect();
             }
         });
+    }
+
+    void interruptThread() {
+        try {
+            receiveThread.interrupt();
+        } catch (Exception e) {
+            // empty
+        }
     }
 
     void disconnect() {
@@ -219,131 +216,80 @@ class HMCServer {
     void command(int command) {
         switch (command) {
             case Command.MATRIX:
-                try {
-                    socket.getOutputStream().write(Packet.MATRIX);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                send(Packet.MATRIX);
                 break;
 
             case Command.MULTI_VIEWER_ENTER:
-                try {
-                    socket.getOutputStream().write(Packet.MULTI_VIEWER_ENTER);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                send(Packet.MULTI_VIEWER_ENTER);
                 break;
 
             case Command.MULTI_VIEWER_MODE_1:
-                try {
-                    socket.getOutputStream().write(Packet.MULTI_VIEWER_MODE_1);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                send(Packet.MULTI_VIEWER_MODE_1);
                 break;
 
             case Command.MULTI_VIEWER_MODE_2:
-                try {
-                    socket.getOutputStream().write(Packet.MULTI_VIEWER_MODE_2);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                send(Packet.MULTI_VIEWER_MODE_2);
                 break;
 
             case Command.MULTI_VIEWER_MODE_3:
-                try {
-                    socket.getOutputStream().write(Packet.MULTI_VIEWER_MODE_3);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                send(Packet.MULTI_VIEWER_MODE_3);
                 break;
 
             case Command.MULTI_VIEWER_MODE_4:
-                try {
-                    socket.getOutputStream().write(Packet.MULTI_VIEWER_MODE_4);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                send(Packet.MULTI_VIEWER_MODE_4);
                 break;
 
             case Command.MULTI_VIEWER_MAIN_1:
-                try {
-                    socket.getOutputStream().write(Packet.MULTI_VIEWER_MAIN_1);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                send(Packet.MULTI_VIEWER_MAIN_1);
                 break;
 
             case Command.MULTI_VIEWER_MAIN_2:
-                try {
-                    socket.getOutputStream().write(Packet.MULTI_VIEWER_MAIN_2);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                send(Packet.MULTI_VIEWER_MAIN_2);
                 break;
 
             case Command.MULTI_VIEWER_MAIN_3:
-                try {
-                    socket.getOutputStream().write(Packet.MULTI_VIEWER_MAIN_3);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                send(Packet.MULTI_VIEWER_MAIN_3);
                 break;
 
             case Command.MULTI_VIEWER_MAIN_4:
-                try {
-                    socket.getOutputStream().write(Packet.MULTI_VIEWER_MAIN_4);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                send(Packet.MULTI_VIEWER_MAIN_4);
                 break;
 
             case Command.VIDEO_WALL_ENTER:
-                try {
-                    socket.getOutputStream().write(Packet.VIDEO_WALL_ENTER);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                send(Packet.VIDEO_WALL_ENTER);
                 break;
 
             case Command.VIDEO_WALL_INPUT_1:
-                try {
-                    socket.getOutputStream().write(Packet.VIDEO_WALL_INPUT_1);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                send(Packet.VIDEO_WALL_INPUT_1);
                 break;
 
             case Command.VIDEO_WALL_INPUT_2:
-                try {
-                    socket.getOutputStream().write(Packet.VIDEO_WALL_INPUT_2);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                send(Packet.VIDEO_WALL_INPUT_2);
                 break;
 
             case Command.VIDEO_WALL_INPUT_3:
-                try {
-                    socket.getOutputStream().write(Packet.VIDEO_WALL_INPUT_3);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                send(Packet.VIDEO_WALL_INPUT_3);
                 break;
 
             case Command.VIDEO_WALL_INPUT_4:
-                try {
-                    socket.getOutputStream().write(Packet.VIDEO_WALL_INPUT_4);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                send(Packet.VIDEO_WALL_INPUT_4);
                 break;
+
             default:
                 break;
         }
 
         try {
-            Thread.sleep(30);
+            Thread.sleep(50);
         } catch (InterruptedException ignored) {
+        }
+    }
+
+    void send(byte[] buffer) {
+        try {
+            socket.getOutputStream().write(buffer);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
@@ -370,7 +316,7 @@ public class RemoteHMCServer {
                 }
 
                 hmcServer.command(Command.MATRIX);
-                hmcServer.disconnect();;
+                hmcServer.disconnect();
                 response(exchange, "success command");
             });
 
@@ -638,10 +584,9 @@ public class RemoteHMCServer {
 
     private void response(HttpExchange exchange, String msg) {
         try {
-            String response = msg;
-            exchange.sendResponseHeaders(200, response.length());
+            exchange.sendResponseHeaders(200, msg.length());
             OutputStream os = exchange.getResponseBody();
-            os.write(response.getBytes());
+            os.write(msg.getBytes());
             os.close();
         } catch (Exception ignored) {
             // empty
