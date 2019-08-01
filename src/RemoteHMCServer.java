@@ -12,7 +12,10 @@ class pRes {
     static final int PORT_UDP = 30600;
     static final int PORT_REMOTE_HTTP = 10232;
     static final int TCP_CONN_TIMEOUT = 5000;
+    static final int SLEEP_SEND = 0;
+    static final int SLEEP_WALL = 1500;
     static final int BUFSIZE = 128;
+    static boolean IS_WALL_MODE = false;
 }
 
 class PacketFileName {
@@ -199,7 +202,7 @@ class HMCServer {
         for (byte[] packet : packetList) {
             sendRawPacketToHMC(packet);
             try {
-                Thread.sleep(100);
+                Thread.sleep(pRes.SLEEP_SEND);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -222,7 +225,7 @@ public class RemoteHMCServer {
 
         System.out.println("start hmc server connection test");
         HMCServer hmcServer = new HMCServer();
-        if(!hmcServer.connect()) {
+        if (!hmcServer.connect()) {
             System.out.println("hmc server connection failure");
             return;
         }
@@ -245,6 +248,7 @@ public class RemoteHMCServer {
                 hmcServer.send(new ArrayList<>(Arrays.asList(
                         Packet.MATRIX
                 )));
+                pRes.IS_WALL_MODE = false;
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -259,6 +263,7 @@ public class RemoteHMCServer {
                         Packet.MULTI_VIEWER_MODE_1,
                         Packet.MULTI_VIEWER_MAIN_1
                 )));
+                pRes.IS_WALL_MODE = false;
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -273,6 +278,7 @@ public class RemoteHMCServer {
                         Packet.MULTI_VIEWER_MODE_1,
                         Packet.MULTI_VIEWER_MAIN_2
                 )));
+                pRes.IS_WALL_MODE = false;
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -287,6 +293,7 @@ public class RemoteHMCServer {
                         Packet.MULTI_VIEWER_MODE_1,
                         Packet.MULTI_VIEWER_MAIN_3
                 )));
+                pRes.IS_WALL_MODE = false;
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -301,6 +308,7 @@ public class RemoteHMCServer {
                         Packet.MULTI_VIEWER_MODE_1,
                         Packet.MULTI_VIEWER_MAIN_4
                 )));
+                pRes.IS_WALL_MODE = false;
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -315,6 +323,7 @@ public class RemoteHMCServer {
                         Packet.MULTI_VIEWER_MODE_2,
                         Packet.MULTI_VIEWER_MAIN_1
                 )));
+                pRes.IS_WALL_MODE = false;
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -329,6 +338,7 @@ public class RemoteHMCServer {
                         Packet.MULTI_VIEWER_MODE_2,
                         Packet.MULTI_VIEWER_MAIN_2
                 )));
+                pRes.IS_WALL_MODE = false;
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -343,6 +353,7 @@ public class RemoteHMCServer {
                         Packet.MULTI_VIEWER_MODE_2,
                         Packet.MULTI_VIEWER_MAIN_3
                 )));
+                pRes.IS_WALL_MODE = false;
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -357,6 +368,7 @@ public class RemoteHMCServer {
                         Packet.MULTI_VIEWER_MODE_2,
                         Packet.MULTI_VIEWER_MAIN_4
                 )));
+                pRes.IS_WALL_MODE = false;
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -371,6 +383,7 @@ public class RemoteHMCServer {
                         Packet.MULTI_VIEWER_MODE_3,
                         Packet.MULTI_VIEWER_MAIN_1
                 )));
+                pRes.IS_WALL_MODE = false;
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -385,6 +398,7 @@ public class RemoteHMCServer {
                         Packet.MULTI_VIEWER_MODE_3,
                         Packet.MULTI_VIEWER_MAIN_2
                 )));
+                pRes.IS_WALL_MODE = false;
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -399,6 +413,7 @@ public class RemoteHMCServer {
                         Packet.MULTI_VIEWER_MODE_3,
                         Packet.MULTI_VIEWER_MAIN_3
                 )));
+                pRes.IS_WALL_MODE = false;
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -413,6 +428,7 @@ public class RemoteHMCServer {
                         Packet.MULTI_VIEWER_MODE_3,
                         Packet.MULTI_VIEWER_MAIN_4
                 )));
+                pRes.IS_WALL_MODE = false;
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -427,6 +443,7 @@ public class RemoteHMCServer {
                         Packet.MULTI_VIEWER_MODE_4,
                         Packet.MULTI_VIEWER_MAIN_1
                 )));
+                pRes.IS_WALL_MODE = false;
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -441,6 +458,7 @@ public class RemoteHMCServer {
                         Packet.MULTI_VIEWER_MODE_4,
                         Packet.MULTI_VIEWER_MAIN_2
                 )));
+                pRes.IS_WALL_MODE = false;
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -455,6 +473,7 @@ public class RemoteHMCServer {
                         Packet.MULTI_VIEWER_MODE_4,
                         Packet.MULTI_VIEWER_MAIN_3
                 )));
+                pRes.IS_WALL_MODE = false;
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -469,6 +488,7 @@ public class RemoteHMCServer {
                         Packet.MULTI_VIEWER_MODE_4,
                         Packet.MULTI_VIEWER_MAIN_4
                 )));
+                pRes.IS_WALL_MODE = false;
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -479,7 +499,10 @@ public class RemoteHMCServer {
                     return;
                 }
                 hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.VIDEO_WALL_ENTER,
+                        Packet.VIDEO_WALL_ENTER
+                )));
+                checkWallModeAndSleep();
+                hmcServer.send(new ArrayList<>(Arrays.asList(
                         Packet.VIDEO_WALL_INPUT_1
                 )));
                 hmcServer.disconnect();
@@ -492,7 +515,10 @@ public class RemoteHMCServer {
                     return;
                 }
                 hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.VIDEO_WALL_ENTER,
+                        Packet.VIDEO_WALL_ENTER
+                )));
+                checkWallModeAndSleep();
+                hmcServer.send(new ArrayList<>(Arrays.asList(
                         Packet.VIDEO_WALL_INPUT_2
                 )));
                 hmcServer.disconnect();
@@ -505,7 +531,10 @@ public class RemoteHMCServer {
                     return;
                 }
                 hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.VIDEO_WALL_ENTER,
+                        Packet.VIDEO_WALL_ENTER
+                )));
+                checkWallModeAndSleep();
+                hmcServer.send(new ArrayList<>(Arrays.asList(
                         Packet.VIDEO_WALL_INPUT_3
                 )));
                 hmcServer.disconnect();
@@ -518,7 +547,10 @@ public class RemoteHMCServer {
                     return;
                 }
                 hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.VIDEO_WALL_ENTER,
+                        Packet.VIDEO_WALL_ENTER
+                )));
+                checkWallModeAndSleep();
+                hmcServer.send(new ArrayList<>(Arrays.asList(
                         Packet.VIDEO_WALL_INPUT_4
                 )));
                 hmcServer.disconnect();
@@ -540,6 +572,17 @@ public class RemoteHMCServer {
             os.close();
         } catch (Exception ignored) {
             // empty
+        }
+    }
+
+    private void checkWallModeAndSleep() {
+        if (!pRes.IS_WALL_MODE) {
+            pRes.IS_WALL_MODE = true;
+            try {
+                Thread.sleep(pRes.SLEEP_WALL);
+            } catch (Exception ignored) {
+                // empty
+            }
         }
     }
 }
