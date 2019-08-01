@@ -498,13 +498,9 @@ public class RemoteHMCServer {
                     response(exchange, "connection failure");
                     return;
                 }
-                hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.VIDEO_WALL_ENTER
-                )));
-                checkWallModeAndSleep();
-                hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.VIDEO_WALL_INPUT_1
-                )));
+                hmcServer.send(new ArrayList<>(Arrays.asList(Packet.VIDEO_WALL_ENTER)));
+                SleepIfNotWallMode();
+                hmcServer.send(new ArrayList<>(Arrays.asList(Packet.VIDEO_WALL_INPUT_1)));
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -514,13 +510,9 @@ public class RemoteHMCServer {
                     response(exchange, "connection failure");
                     return;
                 }
-                hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.VIDEO_WALL_ENTER
-                )));
-                checkWallModeAndSleep();
-                hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.VIDEO_WALL_INPUT_2
-                )));
+                hmcServer.send(new ArrayList<>(Arrays.asList(Packet.VIDEO_WALL_ENTER)));
+                SleepIfNotWallMode();
+                hmcServer.send(new ArrayList<>(Arrays.asList(Packet.VIDEO_WALL_INPUT_2)));
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -530,13 +522,9 @@ public class RemoteHMCServer {
                     response(exchange, "connection failure");
                     return;
                 }
-                hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.VIDEO_WALL_ENTER
-                )));
-                checkWallModeAndSleep();
-                hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.VIDEO_WALL_INPUT_3
-                )));
+                hmcServer.send(new ArrayList<>(Arrays.asList(Packet.VIDEO_WALL_ENTER)));
+                SleepIfNotWallMode();
+                hmcServer.send(new ArrayList<>(Arrays.asList(Packet.VIDEO_WALL_INPUT_3)));
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -546,13 +534,9 @@ public class RemoteHMCServer {
                     response(exchange, "connection failure");
                     return;
                 }
-                hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.VIDEO_WALL_ENTER
-                )));
-                checkWallModeAndSleep();
-                hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.VIDEO_WALL_INPUT_4
-                )));
+                hmcServer.send(new ArrayList<>(Arrays.asList(Packet.VIDEO_WALL_ENTER)));
+                SleepIfNotWallMode();
+                hmcServer.send(new ArrayList<>(Arrays.asList(Packet.VIDEO_WALL_INPUT_4)));
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -575,7 +559,7 @@ public class RemoteHMCServer {
         }
     }
 
-    private void checkWallModeAndSleep() {
+    private void SleepIfNotWallMode() {
         if (!pRes.IS_WALL_MODE) {
             pRes.IS_WALL_MODE = true;
             try {
