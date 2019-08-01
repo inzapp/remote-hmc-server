@@ -48,25 +48,20 @@ class Packet {
     static byte[] MATRIX;
 
     static byte[] MULTI_VIEWER_ENTER;
-
-    static byte[] MULTI_VIEWER_MODE_1;
-    static byte[] MULTI_VIEWER_MODE_2;
-    static byte[] MULTI_VIEWER_MODE_3;
-    static byte[] MULTI_VIEWER_MODE_4;
-
-    static byte[] MULTI_VIEWER_MAIN_1;
-    static byte[] MULTI_VIEWER_MAIN_2;
-    static byte[] MULTI_VIEWER_MAIN_3;
-    static byte[] MULTI_VIEWER_MAIN_4;
+    static byte[][] MULTI_VIEWER_MODE;
+    static byte[][] MULTI_VIEWER_MAIN;
 
     static byte[] VIDEO_WALL_ENTER;
-    static byte[] VIDEO_WALL_INPUT_1;
-    static byte[] VIDEO_WALL_INPUT_2;
-    static byte[] VIDEO_WALL_INPUT_3;
-    static byte[] VIDEO_WALL_INPUT_4;
+    static byte[][] VIDEO_WALL_INPUT;
 }
 
 class PacketLoader {
+    PacketLoader() {
+        Packet.MULTI_VIEWER_MODE = new byte[4][];
+        Packet.MULTI_VIEWER_MAIN = new byte[4][];
+        Packet.VIDEO_WALL_INPUT = new byte[4][];
+    }
+
     void loadAllPacket() {
         System.out.println("start loading packet from file...");
         Packet.SEARCH = load(PacketFileName.SEARCH);
@@ -74,22 +69,22 @@ class PacketLoader {
 
         Packet.MULTI_VIEWER_ENTER = load(PacketFileName.MULTI_VIEWER_ENTER);
 
-        Packet.MULTI_VIEWER_MODE_1 = load(PacketFileName.MULTI_VIEWER_MODE_1);
-        Packet.MULTI_VIEWER_MODE_2 = load(PacketFileName.MULTI_VIEWER_MODE_2);
-        Packet.MULTI_VIEWER_MODE_3 = load(PacketFileName.MULTI_VIEWER_MODE_3);
-        Packet.MULTI_VIEWER_MODE_4 = load(PacketFileName.MULTI_VIEWER_MODE_4);
+        Packet.MULTI_VIEWER_MODE[0] = load(PacketFileName.MULTI_VIEWER_MODE_1);
+        Packet.MULTI_VIEWER_MODE[1] = load(PacketFileName.MULTI_VIEWER_MODE_2);
+        Packet.MULTI_VIEWER_MODE[2] = load(PacketFileName.MULTI_VIEWER_MODE_3);
+        Packet.MULTI_VIEWER_MODE[3] = load(PacketFileName.MULTI_VIEWER_MODE_4);
 
-        Packet.MULTI_VIEWER_MAIN_1 = load(PacketFileName.MULTI_VIEWER_MAIN_1);
-        Packet.MULTI_VIEWER_MAIN_2 = load(PacketFileName.MULTI_VIEWER_MAIN_2);
-        Packet.MULTI_VIEWER_MAIN_3 = load(PacketFileName.MULTI_VIEWER_MAIN_3);
-        Packet.MULTI_VIEWER_MAIN_4 = load(PacketFileName.MULTI_VIEWER_MAIN_4);
+        Packet.MULTI_VIEWER_MAIN[0] = load(PacketFileName.MULTI_VIEWER_MAIN_1);
+        Packet.MULTI_VIEWER_MAIN[1] = load(PacketFileName.MULTI_VIEWER_MAIN_2);
+        Packet.MULTI_VIEWER_MAIN[2] = load(PacketFileName.MULTI_VIEWER_MAIN_3);
+        Packet.MULTI_VIEWER_MAIN[3] = load(PacketFileName.MULTI_VIEWER_MAIN_4);
 
         Packet.VIDEO_WALL_ENTER = load(PacketFileName.VIDEO_WALL_ENTER);
 
-        Packet.VIDEO_WALL_INPUT_1 = load(PacketFileName.VIDEO_WALL_INPUT_1);
-        Packet.VIDEO_WALL_INPUT_2 = load(PacketFileName.VIDEO_WALL_INPUT_2);
-        Packet.VIDEO_WALL_INPUT_3 = load(PacketFileName.VIDEO_WALL_INPUT_3);
-        Packet.VIDEO_WALL_INPUT_4 = load(PacketFileName.VIDEO_WALL_INPUT_4);
+        Packet.VIDEO_WALL_INPUT[0] = load(PacketFileName.VIDEO_WALL_INPUT_1);
+        Packet.VIDEO_WALL_INPUT[1] = load(PacketFileName.VIDEO_WALL_INPUT_2);
+        Packet.VIDEO_WALL_INPUT[2] = load(PacketFileName.VIDEO_WALL_INPUT_3);
+        Packet.VIDEO_WALL_INPUT[3] = load(PacketFileName.VIDEO_WALL_INPUT_4);
         System.out.println("loading packet from file success\n");
     }
 
@@ -133,13 +128,14 @@ class HMCServer {
             refresh();
             socket = new Socket();
             String switcherIp = getSwitcherIpAddress();
+            System.out.println("\nnew connect");
             System.out.println("switcher ip address : " + switcherIp);
             socket.connect(new InetSocketAddress(switcherIp, pRes.PORT_TCP), pRes.TCP_CONN_TIMEOUT);
-            System.out.println("connection success\n");
+            System.out.println("connection success");
             receiveThread.start();
             return true;
         } catch (Exception e) {
-            System.out.println("connection failure\n");
+            System.out.println("connection failure");
             e.printStackTrace();
             return false;
         }
@@ -157,7 +153,7 @@ class HMCServer {
                     System.out.println(res + " byte packet is received and ignored");
                 }
             } catch (Exception e) {
-                System.out.println("connection down");
+                System.out.println("connection down\n");
                 disconnect();
             }
         });
@@ -201,11 +197,7 @@ class HMCServer {
     void send(List<byte[]> packetList) {
         for (byte[] packet : packetList) {
             sendRawPacketToHMC(packet);
-            try {
-                Thread.sleep(pRes.SLEEP_SEND);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            sleep(pRes.SLEEP_SEND);
         }
     }
 
@@ -213,6 +205,14 @@ class HMCServer {
         try {
             socket.getOutputStream().write(buffer);
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -248,301 +248,55 @@ public class RemoteHMCServer {
                 hmcServer.send(new ArrayList<>(Arrays.asList(
                         Packet.MATRIX
                 )));
-                pRes.IS_WALL_MODE = false;
                 hmcServer.disconnect();
                 response(exchange, "success command");
+                pRes.IS_WALL_MODE = false;
             });
 
-            httpServer.createContext("/multi_viewer_11", exchange -> {
+            httpServer.createContext("/multi_viewer/", exchange -> {
+                String param = exchange.getRequestURI().toString().split("/")[2];
+                char[] iso = param.toCharArray();
+                int viewMode = (iso[0] - '0') - 1;
+                int mainWindow = (iso[1] - '0') - 1;
+
                 if (!hmcServer.connect()) {
                     response(exchange, "connection failure");
                     return;
                 }
+
+                hmcServer.send(new ArrayList<>(Arrays.asList(Packet.MULTI_VIEWER_ENTER)));
+                sleepIfWallModeIs(true);
                 hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.MULTI_VIEWER_ENTER,
-                        Packet.MULTI_VIEWER_MODE_1,
-                        Packet.MULTI_VIEWER_MAIN_1
+                        Packet.MULTI_VIEWER_MODE[viewMode],
+                        Packet.MULTI_VIEWER_MAIN[mainWindow]
                 )));
-                pRes.IS_WALL_MODE = false;
+
                 hmcServer.disconnect();
                 response(exchange, "success command");
+                pRes.IS_WALL_MODE = false;
             });
 
-            httpServer.createContext("/multi_viewer_12", exchange -> {
-                if (!hmcServer.connect()) {
+            httpServer.createContext("/wall/", exchange -> {
+                String param = exchange.getRequestURI().toString().split("/")[2];
+                char[] iso = param.toCharArray();
+                int wallMain = (iso[0] - '0') - 1;
+
+                if(!hmcServer.connect()) {
                     response(exchange, "connection failure");
                     return;
                 }
-                hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.MULTI_VIEWER_ENTER,
-                        Packet.MULTI_VIEWER_MODE_1,
-                        Packet.MULTI_VIEWER_MAIN_2
-                )));
-                pRes.IS_WALL_MODE = false;
-                hmcServer.disconnect();
-                response(exchange, "success command");
-            });
 
-            httpServer.createContext("/multi_viewer_13", exchange -> {
-                if (!hmcServer.connect()) {
-                    response(exchange, "connection failure");
-                    return;
-                }
-                hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.MULTI_VIEWER_ENTER,
-                        Packet.MULTI_VIEWER_MODE_1,
-                        Packet.MULTI_VIEWER_MAIN_3
-                )));
-                pRes.IS_WALL_MODE = false;
-                hmcServer.disconnect();
-                response(exchange, "success command");
-            });
-
-            httpServer.createContext("/multi_viewer_14", exchange -> {
-                if (!hmcServer.connect()) {
-                    response(exchange, "connection failure");
-                    return;
-                }
-                hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.MULTI_VIEWER_ENTER,
-                        Packet.MULTI_VIEWER_MODE_1,
-                        Packet.MULTI_VIEWER_MAIN_4
-                )));
-                pRes.IS_WALL_MODE = false;
-                hmcServer.disconnect();
-                response(exchange, "success command");
-            });
-
-            httpServer.createContext("/multi_viewer_21", exchange -> {
-                if (!hmcServer.connect()) {
-                    response(exchange, "connection failure");
-                    return;
-                }
-                hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.MULTI_VIEWER_ENTER,
-                        Packet.MULTI_VIEWER_MODE_2,
-                        Packet.MULTI_VIEWER_MAIN_1
-                )));
-                pRes.IS_WALL_MODE = false;
-                hmcServer.disconnect();
-                response(exchange, "success command");
-            });
-
-            httpServer.createContext("/multi_viewer_22", exchange -> {
-                if (!hmcServer.connect()) {
-                    response(exchange, "connection failure");
-                    return;
-                }
-                hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.MULTI_VIEWER_ENTER,
-                        Packet.MULTI_VIEWER_MODE_2,
-                        Packet.MULTI_VIEWER_MAIN_2
-                )));
-                pRes.IS_WALL_MODE = false;
-                hmcServer.disconnect();
-                response(exchange, "success command");
-            });
-
-            httpServer.createContext("/multi_viewer_23", exchange -> {
-                if (!hmcServer.connect()) {
-                    response(exchange, "connection failure");
-                    return;
-                }
-                hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.MULTI_VIEWER_ENTER,
-                        Packet.MULTI_VIEWER_MODE_2,
-                        Packet.MULTI_VIEWER_MAIN_3
-                )));
-                pRes.IS_WALL_MODE = false;
-                hmcServer.disconnect();
-                response(exchange, "success command");
-            });
-
-            httpServer.createContext("/multi_viewer_24", exchange -> {
-                if (!hmcServer.connect()) {
-                    response(exchange, "connection failure");
-                    return;
-                }
-                hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.MULTI_VIEWER_ENTER,
-                        Packet.MULTI_VIEWER_MODE_2,
-                        Packet.MULTI_VIEWER_MAIN_4
-                )));
-                pRes.IS_WALL_MODE = false;
-                hmcServer.disconnect();
-                response(exchange, "success command");
-            });
-
-            httpServer.createContext("/multi_viewer_31", exchange -> {
-                if (!hmcServer.connect()) {
-                    response(exchange, "connection failure");
-                    return;
-                }
-                hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.MULTI_VIEWER_ENTER,
-                        Packet.MULTI_VIEWER_MODE_3,
-                        Packet.MULTI_VIEWER_MAIN_1
-                )));
-                pRes.IS_WALL_MODE = false;
-                hmcServer.disconnect();
-                response(exchange, "success command");
-            });
-
-            httpServer.createContext("/multi_viewer_32", exchange -> {
-                if (!hmcServer.connect()) {
-                    response(exchange, "connection failure");
-                    return;
-                }
-                hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.MULTI_VIEWER_ENTER,
-                        Packet.MULTI_VIEWER_MODE_3,
-                        Packet.MULTI_VIEWER_MAIN_2
-                )));
-                pRes.IS_WALL_MODE = false;
-                hmcServer.disconnect();
-                response(exchange, "success command");
-            });
-
-            httpServer.createContext("/multi_viewer_33", exchange -> {
-                if (!hmcServer.connect()) {
-                    response(exchange, "connection failure");
-                    return;
-                }
-                hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.MULTI_VIEWER_ENTER,
-                        Packet.MULTI_VIEWER_MODE_3,
-                        Packet.MULTI_VIEWER_MAIN_3
-                )));
-                pRes.IS_WALL_MODE = false;
-                hmcServer.disconnect();
-                response(exchange, "success command");
-            });
-
-            httpServer.createContext("/multi_viewer_34", exchange -> {
-                if (!hmcServer.connect()) {
-                    response(exchange, "connection failure");
-                    return;
-                }
-                hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.MULTI_VIEWER_ENTER,
-                        Packet.MULTI_VIEWER_MODE_3,
-                        Packet.MULTI_VIEWER_MAIN_4
-                )));
-                pRes.IS_WALL_MODE = false;
-                hmcServer.disconnect();
-                response(exchange, "success command");
-            });
-
-            httpServer.createContext("/multi_viewer_41", exchange -> {
-                if (!hmcServer.connect()) {
-                    response(exchange, "connection failure");
-                    return;
-                }
-                hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.MULTI_VIEWER_ENTER,
-                        Packet.MULTI_VIEWER_MODE_4,
-                        Packet.MULTI_VIEWER_MAIN_1
-                )));
-                pRes.IS_WALL_MODE = false;
-                hmcServer.disconnect();
-                response(exchange, "success command");
-            });
-
-            httpServer.createContext("/multi_viewer_42", exchange -> {
-                if (!hmcServer.connect()) {
-                    response(exchange, "connection failure");
-                    return;
-                }
-                hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.MULTI_VIEWER_ENTER,
-                        Packet.MULTI_VIEWER_MODE_4,
-                        Packet.MULTI_VIEWER_MAIN_2
-                )));
-                pRes.IS_WALL_MODE = false;
-                hmcServer.disconnect();
-                response(exchange, "success command");
-            });
-
-            httpServer.createContext("/multi_viewer_43", exchange -> {
-                if (!hmcServer.connect()) {
-                    response(exchange, "connection failure");
-                    return;
-                }
-                hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.MULTI_VIEWER_ENTER,
-                        Packet.MULTI_VIEWER_MODE_4,
-                        Packet.MULTI_VIEWER_MAIN_3
-                )));
-                pRes.IS_WALL_MODE = false;
-                hmcServer.disconnect();
-                response(exchange, "success command");
-            });
-
-            httpServer.createContext("/multi_viewer_44", exchange -> {
-                if (!hmcServer.connect()) {
-                    response(exchange, "connection failure");
-                    return;
-                }
-                hmcServer.send(new ArrayList<>(Arrays.asList(
-                        Packet.MULTI_VIEWER_ENTER,
-                        Packet.MULTI_VIEWER_MODE_4,
-                        Packet.MULTI_VIEWER_MAIN_4
-                )));
-                pRes.IS_WALL_MODE = false;
-                hmcServer.disconnect();
-                response(exchange, "success command");
-            });
-
-            httpServer.createContext("/wall_1", exchange -> {
-                if (!hmcServer.connect()) {
-                    response(exchange, "connection failure");
-                    return;
-                }
                 hmcServer.send(new ArrayList<>(Arrays.asList(Packet.VIDEO_WALL_ENTER)));
-                SleepIfNotWallMode();
-                hmcServer.send(new ArrayList<>(Arrays.asList(Packet.VIDEO_WALL_INPUT_1)));
+                sleepIfWallModeIs(false);
+                hmcServer.send(new ArrayList<>(Arrays.asList(Packet.VIDEO_WALL_INPUT[wallMain])));
+                
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
 
-            httpServer.createContext("/wall_2", exchange -> {
-                if (!hmcServer.connect()) {
-                    response(exchange, "connection failure");
-                    return;
-                }
-                hmcServer.send(new ArrayList<>(Arrays.asList(Packet.VIDEO_WALL_ENTER)));
-                SleepIfNotWallMode();
-                hmcServer.send(new ArrayList<>(Arrays.asList(Packet.VIDEO_WALL_INPUT_2)));
-                hmcServer.disconnect();
-                response(exchange, "success command");
-            });
-
-            httpServer.createContext("/wall_3", exchange -> {
-                if (!hmcServer.connect()) {
-                    response(exchange, "connection failure");
-                    return;
-                }
-                hmcServer.send(new ArrayList<>(Arrays.asList(Packet.VIDEO_WALL_ENTER)));
-                SleepIfNotWallMode();
-                hmcServer.send(new ArrayList<>(Arrays.asList(Packet.VIDEO_WALL_INPUT_3)));
-                hmcServer.disconnect();
-                response(exchange, "success command");
-            });
-
-            httpServer.createContext("/wall_4", exchange -> {
-                if (!hmcServer.connect()) {
-                    response(exchange, "connection failure");
-                    return;
-                }
-                hmcServer.send(new ArrayList<>(Arrays.asList(Packet.VIDEO_WALL_ENTER)));
-                SleepIfNotWallMode();
-                hmcServer.send(new ArrayList<>(Arrays.asList(Packet.VIDEO_WALL_INPUT_4)));
-                hmcServer.disconnect();
-                response(exchange, "success command");
-            });
             httpServer.start();
-            System.out.println("web server initialization success\n");
-            System.out.println("start waiting for client");
+            System.out.println("web server initialization success");
+            System.out.println("start waiting for client\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -559,13 +313,13 @@ public class RemoteHMCServer {
         }
     }
 
-    private void SleepIfNotWallMode() {
-        if (!pRes.IS_WALL_MODE) {
-            pRes.IS_WALL_MODE = true;
+    private void sleepIfWallModeIs(boolean wallMode) {
+        if(pRes.IS_WALL_MODE == wallMode) {
+            pRes.IS_WALL_MODE = !pRes.IS_WALL_MODE;
             try {
                 Thread.sleep(pRes.SLEEP_WALL);
-            } catch (Exception ignored) {
-                // empty
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
