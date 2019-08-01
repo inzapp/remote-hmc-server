@@ -115,10 +115,10 @@ class HMCServer {
         try {
             refresh();
             socket = new Socket();
-            String switcherIp = getHMCIpAddress();
+            String hmcIpAddress = getHMCIpAddress();
             System.out.println("\nnew connect");
-            System.out.println("switcher ip address : " + switcherIp);
-            socket.connect(new InetSocketAddress(switcherIp, pRes.PORT_TCP), pRes.TCP_CONN_TIMEOUT);
+            System.out.println("switcher ip address : " + hmcIpAddress);
+            socket.connect(new InetSocketAddress(hmcIpAddress, pRes.PORT_TCP), pRes.TCP_CONN_TIMEOUT);
             System.out.println("connection success");
             receiveThread.start();
             return true;
