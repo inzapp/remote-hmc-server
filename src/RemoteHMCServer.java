@@ -199,7 +199,7 @@ class HMCServer {
         for (byte[] packet : packetList) {
             sendRawPacketToHMC(packet);
             try {
-                Thread.sleep(50);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -313,7 +313,7 @@ public class RemoteHMCServer {
                 hmcServer.send(new ArrayList<>(Arrays.asList(
                         Packet.MULTI_VIEWER_ENTER,
                         Packet.MULTI_VIEWER_MODE_2,
-                        Packet.MULTI_VIEWER_MAIN_4
+                        Packet.MULTI_VIEWER_MAIN_1
                 )));
                 hmcServer.disconnect();
                 response(exchange, "success command");
