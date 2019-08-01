@@ -17,28 +17,25 @@ class pRes {
 }
 
 class PacketFileName {
-    private static final String PACKET_DIR = "packet";
-    static final String SEARCH = PACKET_DIR + "\\search.txt";
-    static final String MATRIX = PACKET_DIR + "\\matrix.txt";
+    private static final String PACKET_DIR = "packet\\";
+    static final String SEARCH = PACKET_DIR + "search.txt";
+    static final String MATRIX = PACKET_DIR + "matrix.txt";
 
-    static final String MULTI_VIEWER_ENTER = PACKET_DIR + "\\enter_multi_viewer.txt";
+    static final String MULTI_VIEWER_ENTER = PACKET_DIR + "enter_multi_viewer.txt";
+    static final String MULTI_VIEWER_MODE_1 = PACKET_DIR + "multi_viewer_mode_1.txt";
+    static final String MULTI_VIEWER_MODE_2 = PACKET_DIR + "multi_viewer_mode_2.txt";
+    static final String MULTI_VIEWER_MODE_3 = PACKET_DIR + "multi_viewer_mode_3.txt";
+    static final String MULTI_VIEWER_MODE_4 = PACKET_DIR + "multi_viewer_mode_4.txt";
+    static final String MULTI_VIEWER_MAIN_1 = PACKET_DIR + "multi_viewer_main_1.txt";
+    static final String MULTI_VIEWER_MAIN_2 = PACKET_DIR + "multi_viewer_main_2.txt";
+    static final String MULTI_VIEWER_MAIN_3 = PACKET_DIR + "multi_viewer_main_3.txt";
+    static final String MULTI_VIEWER_MAIN_4 = PACKET_DIR + "multi_viewer_main_4.txt";
 
-    static final String MULTI_VIEWER_MODE_1 = PACKET_DIR + "\\multi_viewer_mode_1.txt";
-    static final String MULTI_VIEWER_MODE_2 = PACKET_DIR + "\\multi_viewer_mode_2.txt";
-    static final String MULTI_VIEWER_MODE_3 = PACKET_DIR + "\\multi_viewer_mode_3.txt";
-    static final String MULTI_VIEWER_MODE_4 = PACKET_DIR + "\\multi_viewer_mode_4.txt";
-
-    static final String MULTI_VIEWER_MAIN_1 = PACKET_DIR + "\\multi_viewer_main_1.txt";
-    static final String MULTI_VIEWER_MAIN_2 = PACKET_DIR + "\\multi_viewer_main_2.txt";
-    static final String MULTI_VIEWER_MAIN_3 = PACKET_DIR + "\\multi_viewer_main_3.txt";
-    static final String MULTI_VIEWER_MAIN_4 = PACKET_DIR + "\\multi_viewer_main_4.txt";
-
-    static final String VIDEO_WALL_ENTER = PACKET_DIR + "\\video_wall_enter.txt";
-
-    static final String VIDEO_WALL_INPUT_1 = PACKET_DIR + "\\video_wall_input_1.txt";
-    static final String VIDEO_WALL_INPUT_2 = PACKET_DIR + "\\video_wall_input_2.txt";
-    static final String VIDEO_WALL_INPUT_3 = PACKET_DIR + "\\video_wall_input_3.txt";
-    static final String VIDEO_WALL_INPUT_4 = PACKET_DIR + "\\video_wall_input_4.txt";
+    static final String VIDEO_WALL_ENTER = PACKET_DIR + "video_wall_enter.txt";
+    static final String VIDEO_WALL_INPUT_1 = PACKET_DIR + "video_wall_input_1.txt";
+    static final String VIDEO_WALL_INPUT_2 = PACKET_DIR + "video_wall_input_2.txt";
+    static final String VIDEO_WALL_INPUT_3 = PACKET_DIR + "video_wall_input_3.txt";
+    static final String VIDEO_WALL_INPUT_4 = PACKET_DIR + "video_wall_input_4.txt";
 }
 
 class Packet {
@@ -66,19 +63,16 @@ class PacketLoader {
         Packet.MATRIX = load(PacketFileName.MATRIX);
 
         Packet.MULTI_VIEWER_ENTER = load(PacketFileName.MULTI_VIEWER_ENTER);
-
         Packet.MULTI_VIEWER_MODE[0] = load(PacketFileName.MULTI_VIEWER_MODE_1);
         Packet.MULTI_VIEWER_MODE[1] = load(PacketFileName.MULTI_VIEWER_MODE_2);
         Packet.MULTI_VIEWER_MODE[2] = load(PacketFileName.MULTI_VIEWER_MODE_3);
         Packet.MULTI_VIEWER_MODE[3] = load(PacketFileName.MULTI_VIEWER_MODE_4);
-
         Packet.MULTI_VIEWER_MAIN[0] = load(PacketFileName.MULTI_VIEWER_MAIN_1);
         Packet.MULTI_VIEWER_MAIN[1] = load(PacketFileName.MULTI_VIEWER_MAIN_2);
         Packet.MULTI_VIEWER_MAIN[2] = load(PacketFileName.MULTI_VIEWER_MAIN_3);
         Packet.MULTI_VIEWER_MAIN[3] = load(PacketFileName.MULTI_VIEWER_MAIN_4);
 
         Packet.VIDEO_WALL_ENTER = load(PacketFileName.VIDEO_WALL_ENTER);
-
         Packet.VIDEO_WALL_INPUT[0] = load(PacketFileName.VIDEO_WALL_INPUT_1);
         Packet.VIDEO_WALL_INPUT[1] = load(PacketFileName.VIDEO_WALL_INPUT_2);
         Packet.VIDEO_WALL_INPUT[2] = load(PacketFileName.VIDEO_WALL_INPUT_3);
@@ -108,10 +102,6 @@ class PacketLoader {
         byte[] byteArr = new byte[byteList.size()];
         for (int i = 0; i < byteList.size(); ++i)
             byteArr[i] = byteList.get(i);
-
-//        view raw byte
-//        for (byte cur : byteArr)
-//            System.out.println(cur & 0xFF);
 
         return byteArr;
     }
@@ -196,7 +186,7 @@ class HMCServer {
         try {
             socket.getOutputStream().write(buffer);
         } catch (IOException e) {
-            e.printStackTrace();
+            // empty
         }
     }
 }
@@ -231,7 +221,7 @@ public class RemoteHMCServer {
 
                 hmcServer.send(Packet.MATRIX);
                 hmcServer.disconnect();
-                response(exchange, "success command");
+                response(exchange, "command success");
                 pRes.IS_WALL_MODE = false;
             });
 
@@ -250,9 +240,8 @@ public class RemoteHMCServer {
                 sleepIfWallModeIs(true);
                 hmcServer.send(Packet.MULTI_VIEWER_MODE[viewMode]);
                 hmcServer.send(Packet.MULTI_VIEWER_MAIN[mainWindow]);
-
                 hmcServer.disconnect();
-                response(exchange, "success command");
+                response(exchange, "command success");
                 pRes.IS_WALL_MODE = false;
             });
 
@@ -269,9 +258,8 @@ public class RemoteHMCServer {
                 hmcServer.send(Packet.VIDEO_WALL_ENTER);
                 sleepIfWallModeIs(false);
                 hmcServer.send(Packet.VIDEO_WALL_INPUT[wallMain]);
-
                 hmcServer.disconnect();
-                response(exchange, "success command");
+                response(exchange, "command success");
                 pRes.IS_WALL_MODE = true;
             });
 
@@ -289,7 +277,7 @@ public class RemoteHMCServer {
             OutputStream os = exchange.getResponseBody();
             os.write(msg.getBytes());
             os.close();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
             // empty
         }
     }
