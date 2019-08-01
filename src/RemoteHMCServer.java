@@ -113,6 +113,7 @@ class PacketLoader {
         for (int i = 0; i < byteList.size(); ++i)
             byteArr[i] = byteList.get(i);
 
+//        view raw byte
 //        for (byte cur : byteArr)
 //            System.out.println(cur & 0xFF);
 
@@ -195,7 +196,7 @@ class HMCServer {
     }
 
     void send(List<byte[]> packetList) {
-        for(byte[] packet : packetList) {
+        for (byte[] packet : packetList) {
             sendRawPacketToHMC(packet);
             try {
                 Thread.sleep(50);
@@ -205,7 +206,7 @@ class HMCServer {
         }
     }
 
-    void sendRawPacketToHMC(byte[] buffer) {
+    private void sendRawPacketToHMC(byte[] buffer) {
         try {
             socket.getOutputStream().write(buffer);
         } catch (IOException e) {
@@ -219,14 +220,21 @@ public class RemoteHMCServer {
         PacketLoader packetLoader = new PacketLoader();
         packetLoader.loadAllPacket();
 
+        System.out.println("start hmc server connection test");
         HMCServer hmcServer = new HMCServer();
-        hmcServer.connect();
+        if(!hmcServer.connect()) {
+            System.out.println("hmc server connection failure");
+            return;
+        }
+
+        hmcServer.disconnect();
+        System.out.println("hmc server connection success");
 
         RemoteHMCServer remoteHMCServer = new RemoteHMCServer();
         remoteHMCServer.start(hmcServer);
     }
 
-    void start(HMCServer hmcServer) {
+    private void start(HMCServer hmcServer) {
         try {
             HttpServer httpServer = HttpServer.create(new InetSocketAddress(pRes.PORT_REMOTE_HTTP), 0);
             httpServer.createContext("/matrix", exchange -> {
@@ -274,10 +282,11 @@ public class RemoteHMCServer {
                     response(exchange, "connection failure");
                     return;
                 }
-
-                hmcServer.sendRawPacketToHMC(Packet.MULTI_VIEWER_ENTER);
-                hmcServer.sendRawPacketToHMC(Packet.MULTI_VIEWER_MODE_1);
-                hmcServer.sendRawPacketToHMC(Packet.MULTI_VIEWER_MAIN_3);
+                hmcServer.send(new ArrayList<>(Arrays.asList(
+                        Packet.MULTI_VIEWER_ENTER,
+                        Packet.MULTI_VIEWER_MODE_1,
+                        Packet.MULTI_VIEWER_MAIN_3
+                )));
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -485,7 +494,7 @@ public class RemoteHMCServer {
                 hmcServer.send(new ArrayList<>(Arrays.asList(
                         Packet.VIDEO_WALL_ENTER,
                         Packet.VIDEO_WALL_INPUT_2
-                        )));
+                )));
                 hmcServer.disconnect();
                 response(exchange, "success command");
             });
@@ -517,6 +526,7 @@ public class RemoteHMCServer {
             });
             httpServer.start();
             System.out.println("web server initialization success\n");
+            System.out.println("start waiting for client");
         } catch (Exception e) {
             e.printStackTrace();
         }
