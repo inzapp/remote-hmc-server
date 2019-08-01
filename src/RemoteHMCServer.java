@@ -121,11 +121,11 @@ class HMCServer {
             socket.connect(new InetSocketAddress(hmcIpAddress, pRes.PORT_TCP), pRes.TCP_CONN_TIMEOUT);
             System.out.println("connection success");
             receiveThread.start();
-            return true;
+            return false;
         } catch (Exception e) {
             System.out.println("connection failure");
             e.printStackTrace();
-            return false;
+            return true;
         }
     }
 
@@ -198,7 +198,7 @@ public class RemoteHMCServer {
 
         System.out.println("start hmc server connection test");
         HMCServer hmcServer = new HMCServer();
-        if (!hmcServer.connect()) {
+        if (hmcServer.connect()) {
             System.out.println("hmc server connection failure");
             return;
         }
@@ -214,7 +214,7 @@ public class RemoteHMCServer {
         try {
             HttpServer httpServer = HttpServer.create(new InetSocketAddress(pRes.PORT_REMOTE_HTTP), 0);
             httpServer.createContext("/matrix", exchange -> {
-                if (!hmcServer.connect()) {
+                if (hmcServer.connect()) {
                     response(exchange, "connection failure");
                     return;
                 }
@@ -231,7 +231,7 @@ public class RemoteHMCServer {
                 int viewMode = (iso[0] - '0') - 1;
                 int mainWindow = (iso[1] - '0') - 1;
 
-                if (!hmcServer.connect()) {
+                if (hmcServer.connect()) {
                     response(exchange, "connection failure");
                     return;
                 }
@@ -250,7 +250,7 @@ public class RemoteHMCServer {
                 char[] iso = param.toCharArray();
                 int wallMain = (iso[0] - '0') - 1;
 
-                if(!hmcServer.connect()) {
+                if(hmcServer.connect()) {
                     response(exchange, "connection failure");
                     return;
                 }
