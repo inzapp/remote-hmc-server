@@ -225,7 +225,7 @@ public class RemoteHMCServer {
                 pRes.IS_WALL_MODE = false;
             });
 
-            httpServer.createContext("/multi_viewer/", exchange -> {
+            httpServer.createContext("/multi/", exchange -> {
                 String param = exchange.getRequestURI().toString().split("/")[2];
                 char[] iso = param.toCharArray();
                 int viewMode = (iso[0] - '0') - 1;
