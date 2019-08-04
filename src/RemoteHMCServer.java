@@ -11,6 +11,7 @@ class pRes {
     static final int PORT_UDP = 30600;
     static final int PORT_REMOTE_HTTP = 10232;
     static final int TCP_CONN_TIMEOUT = 5000;
+    static final int UDP_RECV_TIMEOUT = 1000;
     static final int SLEEP_WALL = 1500;
     static final int BUFSIZE = 128;
     static boolean IS_WALL_MODE = false;
@@ -124,7 +125,6 @@ class HMCServer {
             return true;
         } catch (Exception e) {
             System.out.println("connection failure");
-            e.printStackTrace();
             return false;
         }
     }
@@ -166,6 +166,7 @@ class HMCServer {
     private String getHMCIpAddress() {
         try {
             DatagramSocket dSocket = new DatagramSocket();
+            dSocket.setSoTimeout(pRes.UDP_RECV_TIMEOUT);
             DatagramPacket sendPacket = new DatagramPacket(Packet.SEARCH, Packet.SEARCH.length, InetAddress.getByName("255.255.255.255"), pRes.PORT_UDP);
             dSocket.setBroadcast(true);
             dSocket.send(sendPacket);
@@ -176,7 +177,7 @@ class HMCServer {
 
             return receivePacket.getAddress().getHostAddress();
         } catch (Exception e) {
-            e.printStackTrace();
+            // empty
         }
 
         return "found failure";
@@ -250,7 +251,7 @@ public class RemoteHMCServer {
                 char[] iso = param.toCharArray();
                 int wallMain = (iso[0] - '0') - 1;
 
-                if(!hmcServer.connect()) {
+                if (!hmcServer.connect()) {
                     response(exchange, "connection failure");
                     return;
                 }
@@ -283,7 +284,7 @@ public class RemoteHMCServer {
     }
 
     private void sleepIfWallModeIs(boolean wallMode) {
-        if(pRes.IS_WALL_MODE == wallMode) {
+        if (pRes.IS_WALL_MODE == wallMode) {
             try {
                 Thread.sleep(pRes.SLEEP_WALL);
             } catch (InterruptedException e) {
