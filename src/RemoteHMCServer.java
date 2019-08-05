@@ -118,13 +118,12 @@ class HMCServer {
             socket = new Socket();
             String hmcIpAddress = getHMCIpAddress();
             System.out.println("\nnew connect");
-            System.out.println("switcher ip address : " + hmcIpAddress);
+            System.out.println("hmc ip address : " + hmcIpAddress);
             socket.connect(new InetSocketAddress(hmcIpAddress, pRes.PORT_TCP), pRes.TCP_CONN_TIMEOUT);
             System.out.println("connection success");
             receiveThread.start();
             return true;
         } catch (Exception e) {
-            System.out.println("connection failure");
             return false;
         }
     }
