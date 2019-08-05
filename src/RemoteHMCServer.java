@@ -115,13 +115,13 @@ class HMCServer {
     boolean connect() {
         try {
             refresh();
-            socket = new Socket();
             String hmcIpAddress = getHMCIpAddress();
             System.out.println("\nnew connect");
             System.out.println("hmc ip address : " + hmcIpAddress);
+            socket = new Socket();
             socket.connect(new InetSocketAddress(hmcIpAddress, pRes.PORT_TCP), pRes.TCP_CONN_TIMEOUT);
-            System.out.println("connection success");
             receiveThread.start();
+            System.out.println("connection success");
             return true;
         } catch (Exception e) {
             return false;
