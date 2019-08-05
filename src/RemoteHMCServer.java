@@ -201,6 +201,7 @@ public class RemoteHMCServer {
         HMCServer hmcServer = new HMCServer();
         if (!hmcServer.connect()) {
             System.out.println("hmc server connection failure");
+            System.out.println("web server initialization failure");
             return;
         }
 
