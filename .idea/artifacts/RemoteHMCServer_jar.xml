@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="RemoteHMCServer:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/RemoteHMCServer_jar</output-path>
+    <root id="archive" name="RemoteHMCServer.jar">
+      <element id="module-output" name="RemoteHMCServer" />
+    </root>
+  </artifact>
+</component>
